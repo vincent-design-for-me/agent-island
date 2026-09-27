@@ -14,6 +14,7 @@ struct UsageView: View {
     @ObservedObject private var store = UsageStore.shared
     @ObservedObject private var pref = StylePref.shared
     @ObservedObject private var visibility = ProviderVisibilityStore.shared
+    @ObservedObject private var extras = ExtraUsageStore.shared
 
     private var style: ChartStyle { pref.style }
 
@@ -21,6 +22,7 @@ struct UsageView: View {
         let claudeOn = visibility.claudeShown
         let codexOn = visibility.codexShown
 
+        VStack(spacing: 8) {
         HStack(spacing: 0) {
             switch (claudeOn, codexOn) {
             case (true, true):
@@ -48,6 +50,11 @@ struct UsageView: View {
             case (false, false):
                 BothHiddenPlaceholder()
                     .transition(.opacity)
+            }
+        }
+            if !extras.shown.isEmpty {
+                ExtraUsageRows()
+                    .padding(.horizontal, 12)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

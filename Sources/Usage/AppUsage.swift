@@ -45,14 +45,18 @@ struct AppUsage: Codable {
     /// Per-card detail (what each card is + when it expires). nil when the
     /// detail fetch failed — the count above still stands on its own.
     var resetCardDetails: [ResetCard]? = nil
+    /// One short secondary figure for quota-only providers (Grok's monthly
+    /// dollars, Gemini's Flash bucket). nil for Claude/Codex.
+    var detail: String? = nil
 
     init(fiveHour: WindowUsage, weekly: WindowUsage, plan: String? = nil,
-         resetCards: Int? = nil, resetCardDetails: [ResetCard]? = nil) {
+         resetCards: Int? = nil, resetCardDetails: [ResetCard]? = nil, detail: String? = nil) {
         self.fiveHour = fiveHour
         self.weekly = weekly
         self.plan = plan
         self.resetCards = resetCards
         self.resetCardDetails = resetCardDetails
+        self.detail = detail
     }
 
     static let empty = AppUsage(fiveHour: .unknown, weekly: .unknown)

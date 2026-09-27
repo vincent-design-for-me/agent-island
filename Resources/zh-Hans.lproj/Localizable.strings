@@ -405,3 +405,11 @@
 "Copy the whole code from the page and try once more" = "请复制页面上的完整验证码后再试一次";
 "That code did not work" = "这个验证码无效";
 "Sign in" = "登录";
+
+/* Quota-only providers */
+"off" = "已关闭";
+"sign in to Cursor" = "请登录 Cursor";
+"sign in to Grok" = "请登录 Grok";
+"run grok to refresh" = "运行 grok 以刷新";
+"%@ / %@ monthly" = "本月 %@ / %@";
+"parse error" = "解析失败";

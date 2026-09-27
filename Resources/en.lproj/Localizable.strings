@@ -397,3 +397,11 @@
 "Copy the whole code from the page and try once more" = "Copy the whole code from the page and try once more";
 "That code did not work" = "That code did not work";
 "Sign in" = "Sign in";
+
+/* Quota-only providers */
+"off" = "off";
+"sign in to Cursor" = "sign in to Cursor";
+"sign in to Grok" = "sign in to Grok";
+"run grok to refresh" = "run grok to refresh";
+"%@ / %@ monthly" = "%@ / %@ monthly";
+"parse error" = "parse error";

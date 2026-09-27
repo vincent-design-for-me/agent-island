@@ -25,6 +25,7 @@ struct SettingsView: View {
     @ObservedObject private var targetDisplay = IslandTargetDisplayStore.shared
     @ObservedObject private var appLanguage = AppLanguageStore.shared
     @ObservedObject private var usage = UsageStore.shared
+    @ObservedObject private var extras = ExtraUsageStore.shared
     @ObservedObject private var cost = CostStore.shared
     @ObservedObject private var updater = UpdaterController.shared
 
@@ -621,6 +622,25 @@ struct SettingsView: View {
                     }
                 }
             }
+            ForEach(ExtraProvider.allCases.filter(\.isDetected)) { provider in
+                let reading = extras.usage[provider] ?? .empty
+                SettingsRow(
+                    title: provider.displayName,
+                    subtitle: extraSubtitle(provider, reading),
+                    dot: provider.color,
+                    chip: reading.plan?.uppercased()
+                ) {
+                    SettingsToggle(isOn: extras.enabled.contains(provider)) {
+                        withAnimation(.openMorph) {
+                            if extras.enabled.contains(provider) {
+                                extras.enabled.remove(provider)
+                            } else {
+                                extras.enabled.insert(provider)
+                            }
+                        }
+                    }
+                }
+            }
         }
         .padding(.horizontal, 14)
         .padding(.top, 18)
@@ -945,6 +965,15 @@ struct SettingsView: View {
             ? Self.windowCaption(u.fiveHour)
             : "\(Self.windowCaption(u.fiveHour)) / \(Self.windowCaption(u.weekly))"
         return "\(synced) · \(nums)"
+    }
+
+    private func extraSubtitle(_ provider: ExtraProvider, _ u: AppUsage) -> String {
+        guard extras.enabled.contains(provider) else { return L10n.tr("off") }
+        let synced = extras.lastUpdated[provider].map {
+            L10n.tr("synced %@", Self.relativeFormatter.localizedString(for: $0, relativeTo: Date()))
+        } ?? L10n.tr("idle")
+        let detail = u.detail.map { " · \($0)" } ?? ""
+        return "\(synced) · \(Self.windowCaption(u.fiveHour))\(detail)"
     }
 
     private static func windowCaption(_ w: WindowUsage) -> String {

@@ -6,6 +6,9 @@ import AppKit
 enum ProviderLogos {
     static let claude = load("claude_logo")
     static let openAI = load("openai_logo")
+    static let cursor = load("cursor_logo")
+    static let grok = load("grok_logo")
+    static let gemini = load("gemini_logo")
 
     private static func load(_ name: String) -> NSImage? {
         guard let url = Bundle.main.url(forResource: name, withExtension: "pdf"),

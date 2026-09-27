@@ -70,6 +70,7 @@ final class IslandModel: ObservableObject {
         subscribeToSpacingStore()
         subscribeToScreenPref()
         subscribeToInterfaceScale()
+        subscribeToExtraProviders()
     }
 
     /// The magnifier the view applies via scaleEffect; `size` is already
@@ -165,6 +166,24 @@ final class IslandModel: ObservableObject {
             .store(in: &subs)
     }
 
+    /// Quota-only provider rows stack under the usage tiles; the panel
+    /// grows by exactly their height so the tiles never shrink.
+    private var extraRowsHeight: CGFloat {
+        let rows = ExtraUsageStore.shared.shown.count
+        return rows == 0 ? 0 : CGFloat(rows) * (ExtraUsageRows.rowHeight + 2) + 8
+    }
+
+    private func subscribeToExtraProviders() {
+        ExtraUsageStore.shared.$enabled
+            .dropFirst()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                guard let self, self.state == .expanded else { return }
+                withAnimation(.openMorph) { self.recomputeSize() }
+            }
+            .store(in: &subs)
+    }
+
     private func subscribeToInterfaceScale() {
         InterfaceScaleStore.shared.$factor
             .dropFirst()
@@ -230,7 +249,7 @@ final class IslandModel: ObservableObject {
         let detailHeight = activeScreen == .overview && overviewDayDetailVisible
             ? overviewDetailContentHeight
             : 0
-        return baseHeight + detailHeight
+        return baseHeight + detailHeight + (activeScreen == .usage ? extraRowsHeight : 0)
     }
 
     private func shouldCollapseDetailBeforeShowing(_ screen: ScreenPref.Screen) -> Bool {

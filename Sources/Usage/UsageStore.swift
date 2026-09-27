@@ -165,6 +165,7 @@ final class UsageStore: ObservableObject {
             self.loading = false
             self.scheduleBoundaryRefresh()
         }
+        ExtraUsageStore.shared.refresh()
     }
 
     /// The 5-minute poll floor means a window can sit visibly expired — and,
@@ -212,7 +213,7 @@ final class UsageStore: ObservableObject {
             && u.fiveHour.usedPercent == 0 && u.weekly.usedPercent == 0
     }
 
-    private static func mergedUsage(existing: AppUsage, fetched: AppUsage) -> AppUsage {
+    static func mergedUsage(existing: AppUsage, fetched: AppUsage) -> AppUsage {
         guard isErrorOnly(fetched), !isErrorOnly(existing) else { return fetched }
         let error = fetched.fiveHour.error ?? fetched.weekly.error
         return AppUsage(
@@ -230,7 +231,8 @@ final class UsageStore: ObservableObject {
             ),
             plan: existing.plan,
             resetCards: existing.resetCards,
-            resetCardDetails: existing.resetCardDetails
+            resetCardDetails: existing.resetCardDetails,
+            detail: existing.detail
         )
     }
 
