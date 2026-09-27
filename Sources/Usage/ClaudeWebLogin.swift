@@ -56,7 +56,7 @@ final class ClaudeWebLogin: @unchecked Sendable {
         finished = false
         continuation = cont
         verifier = Self.randomURLSafe(32)
-        state = Self.randomURLSafe(16)
+        state = Self.randomURLSafe(32)
         let challenge = Self.base64URL(Data(SHA256.hash(data: Data(verifier.utf8))))
 
         let params = NWParameters.tcp
@@ -92,7 +92,10 @@ final class ClaudeWebLogin: @unchecked Sendable {
             finish(.failed("bad authorize base"))
             return
         }
+        // Mirrors the `claude` CLI's authorize URL exactly (param set + 32-byte
+        // state); claude.ai rejects deviations with "Invalid request format".
         comps.queryItems = [
+            URLQueryItem(name: "code", value: "true"),
             URLQueryItem(name: "client_id", value: ClaudeCredentials.oauthClientID),
             URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "redirect_uri", value: redirectURI),
