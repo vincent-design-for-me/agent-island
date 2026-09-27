@@ -607,6 +607,7 @@ struct SettingsView: View {
                             usage.reauthenticateCodex()
                         }
                     }
+                    CodexAccountMenu(usage: usage)
                     SettingsToggle(isOn: visibility.codexVisible) {
                         withAnimation(.openMorph) {
                             visibility.codexVisible.toggle()

@@ -374,3 +374,15 @@
 
 "Codex official · that day %@" = "Codex 官方口径 · 当日 %@";
 "Codex official · lifetime %@" = "Codex 官方口径 · 累计 %@";
+
+/* Codex account switching */
+"Switch Codex account" = "一键切号";
+"No saved accounts yet" = "还没有保存的账号";
+"Save current account…" = "保存当前账号…";
+"Remove saved account" = "移除已保存的账号";
+"Auto-switch when exhausted" = "额度用尽时自动切换";
+"Codex account switching" = "Codex 账号切换";
+"Give this login a name so you can switch back to it later" = "给这个登录起个名字，之后可以一键切回来";
+"e.g. Work" = "例如：工作账号";
+"Save" = "保存";
+"Cancel" = "取消";

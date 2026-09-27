@@ -366,3 +366,15 @@
 
 "Codex official · that day %@" = "Codex official · that day %@";
 "Codex official · lifetime %@" = "Codex official · lifetime %@";
+
+/* Codex account switching */
+"Switch Codex account" = "Switch Codex account";
+"No saved accounts yet" = "No saved accounts yet";
+"Save current account…" = "Save current account…";
+"Remove saved account" = "Remove saved account";
+"Auto-switch when exhausted" = "Auto-switch when exhausted";
+"Codex account switching" = "Codex account switching";
+"Give this login a name so you can switch back to it later" = "Give this login a name so you can switch back to it later";
+"e.g. Work" = "e.g. Work";
+"Save" = "Save";
+"Cancel" = "Cancel";

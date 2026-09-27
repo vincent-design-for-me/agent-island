@@ -33,6 +33,14 @@ final class UsageStore: ObservableObject {
     /// gates on this.
     @Published var claudeReauthInProgress = false
     @Published var codexReauthInProgress = false
+    @Published var codexAccounts: [CodexAccountSwitcher.Account] = CodexAccountSwitcher.accounts()
+    @Published var activeCodexAccountLabel: String? = CodexAccountSwitcher.activeAccount()?.label
+    @Published var codexAutoSwitch = CodexAccountSwitcher.autoSwitchEnabled {
+        didSet { CodexAccountSwitcher.autoSwitchEnabled = codexAutoSwitch }
+    }
+    /// Labels already tried during the current exhaustion episode, so auto
+    /// rotation walks the pool once instead of cycling forever.
+    private var codexRotationTried: Set<String> = []
 
     private var refreshTask: Task<Void, Never>?
     private var reauthPollTask: Task<Void, Never>?
@@ -151,6 +159,7 @@ final class UsageStore: ObservableObject {
             self.codex = mergedCodex
             self.claude = mergedClaude
             UsageStore.saveCachedSnapshot(claude: mergedClaude, codex: mergedCodex)
+            if !codexFailed { self.rotateCodexIfExhausted(mergedCodex) }
             self.refreshWarning = UsageStore.refreshWarning(codexFailed: codexFailed, claudeFailed: claudeFailed)
             self.lastUpdated = Date()
             self.loading = false
@@ -346,6 +355,48 @@ final class UsageStore: ObservableObject {
         await finishClaudeReauthWithSingleFetch()
     }
 
+    // MARK: - Codex accounts
+
+    func reloadCodexAccounts() {
+        codexAccounts = CodexAccountSwitcher.accounts()
+        activeCodexAccountLabel = CodexAccountSwitcher.activeAccount()?.label
+    }
+
+    func saveCurrentCodexAccount(label: String) {
+        CodexAccountSwitcher.parkCurrent(label: label)
+        reloadCodexAccounts()
+    }
+
+    func switchCodexAccount(_ account: CodexAccountSwitcher.Account) {
+        guard CodexAccountSwitcher.activate(account) else { return }
+        codexRotationTried.removeAll()
+        reloadCodexAccounts()
+        Task { await finishCodexReauthWithSingleFetch() }
+    }
+
+    func forgetCodexAccount(_ account: CodexAccountSwitcher.Account) {
+        CodexAccountSwitcher.forget(account)
+        reloadCodexAccounts()
+    }
+
+    /// Opt-in: when the live account's window reads 100%, move to the next
+    /// parked account. Keyed off the real /wham/usage percentages rather than
+    /// CLI failure text, so it never guesses.
+    private func rotateCodexIfExhausted(_ usage: AppUsage) {
+        guard codexAutoSwitch else { return }
+        let exhausted = [usage.fiveHour, usage.weekly].contains { $0.error == nil && $0.usedPercent >= 1 }
+        guard exhausted else {
+            codexRotationTried.removeAll()
+            return
+        }
+        if let active = CodexAccountSwitcher.activeAccount()?.label { codexRotationTried.insert(active) }
+        guard let next = CodexAccountSwitcher.rotationCandidate(tried: codexRotationTried) else { return }
+        codexRotationTried.insert(next.label)
+        guard CodexAccountSwitcher.activate(next) else { return }
+        reloadCodexAccounts()
+        Task { await finishCodexReauthWithSingleFetch() }
+    }
+
     func reauthenticateCodex() {
         guard !codexReauthInProgress else { return }
         let initialStamp = CodexCredentials.authModificationStamp()
@@ -383,6 +434,7 @@ final class UsageStore: ObservableObject {
                 self.lastUpdated = Date()
             }
             self.codexReauthInProgress = false
+            self.reloadCodexAccounts()
         }
     }
 
