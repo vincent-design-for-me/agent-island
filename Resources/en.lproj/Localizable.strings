@@ -382,3 +382,18 @@
 /* Any-date reports */
 "Report start date" = "Report start date";
 "Latest" = "Latest";
+
+/* Claude sign-in options */
+"Cancel sign-in" = "Cancel sign-in";
+"Choose where the sign-in opens" = "Choose where the sign-in opens";
+"Incognito window (%@)" = "Incognito window (%@)";
+"Copy login link" = "Copy login link";
+"Sign in with a code" = "Sign in with a code";
+"Account not in any browser? Incognito gives it a clean sign-in" = "Account not in any browser? Incognito gives it a clean sign-in";
+"Opens the Claude sign-in page with your saved browser choice" = "Opens the Claude sign-in page with your saved browser choice";
+"Default browser" = "Default browser";
+"Link copied — paste it in a browser" = "Link copied — paste it in a browser";
+"Approve the page that just opened, then paste the code it shows here" = "Approve the page that just opened, then paste the code it shows here";
+"Copy the whole code from the page and try once more" = "Copy the whole code from the page and try once more";
+"That code did not work" = "That code did not work";
+"Sign in" = "Sign in";

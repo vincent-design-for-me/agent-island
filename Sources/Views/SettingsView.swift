@@ -567,6 +567,11 @@ struct SettingsView: View {
         }
     }
 
+    private var claudeReauthLabel: String {
+        guard usage.claudeReauthInProgress else { return "Re-authenticate" }
+        return usage.claudeSignInMode == .copyLink ? "Link copied — paste it in a browser" : "waiting for login…"
+    }
+
     private var providersSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             sectionLabel("Providers")
@@ -579,11 +584,12 @@ struct SettingsView: View {
                 HStack(spacing: 8) {
                     if ClaudeCredentials.canPromptReauth() {
                         PillButton(
-                            label: usage.claudeReauthInProgress ? "waiting for login…" : "Re-authenticate",
+                            label: claudeReauthLabel,
                             isLoading: usage.claudeReauthInProgress
                         ) {
                             usage.reauthenticateClaude()
                         }
+                        ClaudeSignInMenu(usage: usage)
                     }
                     SettingsToggle(isOn: visibility.claudeVisible) {
                         withAnimation(.openMorph) {

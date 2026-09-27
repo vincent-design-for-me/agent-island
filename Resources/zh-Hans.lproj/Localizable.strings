@@ -390,3 +390,18 @@
 /* Any-date reports */
 "Report start date" = "报告开始日期";
 "Latest" = "最新";
+
+/* Claude sign-in options */
+"Cancel sign-in" = "取消登录";
+"Choose where the sign-in opens" = "选择在哪里打开登录页";
+"Incognito window (%@)" = "无痕窗口（%@）";
+"Copy login link" = "复制登录链接";
+"Sign in with a code" = "粘贴验证码登录";
+"Account not in any browser? Incognito gives it a clean sign-in" = "账号不在任何浏览器里？用无痕窗口可以干净地登录";
+"Opens the Claude sign-in page with your saved browser choice" = "用你保存的浏览器选择打开 Claude 登录页";
+"Default browser" = "默认浏览器";
+"Link copied — paste it in a browser" = "链接已复制，粘贴到浏览器打开";
+"Approve the page that just opened, then paste the code it shows here" = "在刚打开的页面上点同意，然后把页面显示的验证码粘贴到这里";
+"Copy the whole code from the page and try once more" = "请复制页面上的完整验证码后再试一次";
+"That code did not work" = "这个验证码无效";
+"Sign in" = "登录";

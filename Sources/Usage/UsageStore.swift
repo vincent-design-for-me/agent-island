@@ -318,21 +318,47 @@ final class UsageStore: ObservableObject {
     /// keychain. No Terminal, no manual code paste. On any failure we fall back
     /// to the legacy `claude auth login` + keychain-poll so a machine that can't
     /// run the loopback flow is no worse off than before.
-    func reauthenticateClaude() {
+    enum ClaudeSignInMode {
+        /// Open the authorize page in the chosen browser, catch the redirect locally.
+        case browser
+        /// Same loopback flow, but the link goes to the clipboard.
+        case copyLink
+        /// Paste the `code#state` the page shows — no local listener needed.
+        case code
+    }
+
+    /// Which sign-in is in flight, so the button can say "link copied".
+    @Published var claudeSignInMode: ClaudeSignInMode?
+
+    func reauthenticateClaude(_ mode: ClaudeSignInMode = .browser) {
         guard !claudeReauthInProgress else { return }
         claudeReauthInProgress = true
+        claudeSignInMode = mode
         reauthPollTask?.cancel()
         reauthPollTask = Task { [weak self] in
             guard let self else { return }
-            switch await ClaudeWebLogin.shared.start() {
+            let outcome: ClaudeWebLogin.Outcome
+            switch mode {
+            case .browser: outcome = await ClaudeWebLogin.shared.start()
+            case .copyLink: outcome = await ClaudeWebLogin.shared.start(delivery: .copyLink)
+            case .code: outcome = await ClaudeWebLogin.shared.startWithCode()
+            }
+            switch outcome {
             case .success:
                 await self.finishClaudeReauthWithSingleFetch()
-            case .canceled:
-                await MainActor.run { self.claudeReauthInProgress = false }
-            case .failed:
+            case .failed where mode == .browser:
                 await self.runClaudeCLIReauthFallback()
+            case .canceled, .failed:
+                await MainActor.run { self.claudeReauthInProgress = false }
             }
+            await MainActor.run { self.claudeSignInMode = nil }
         }
+    }
+
+    /// Abandons a loopback sign-in the user walked away from (e.g. a copied
+    /// link never opened), so another method can start right away.
+    func cancelClaudeSignIn() {
+        ClaudeWebLogin.shared.cancel()
     }
 
     /// Legacy fallback: spawn `claude auth login` in Terminal and poll the

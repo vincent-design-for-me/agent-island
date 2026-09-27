@@ -27,6 +27,8 @@ enum ClaudeCredentials {
     static let oauthClientID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
     /// Where `ClaudeWebLogin` sends the browser to sign in.
     static let authorizeURLBase = "https://claude.com/cai/oauth/authorize"
+    /// Redirect for the paste-a-code sign-in: the page shows `code#state`.
+    static let manualRedirectURI = "https://platform.claude.com/oauth/code/callback"
     /// Token endpoint for both refresh and authorization_code exchange.
     static let tokenURLString = "https://platform.claude.com/v1/oauth/token"
     /// Scope set the mid-2026 usage endpoint requires (`user:profile` is the

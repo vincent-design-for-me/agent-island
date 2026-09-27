@@ -42,12 +42,73 @@ final class ClaudeWebLogin: @unchecked Sendable {
     private var redirectURI = ""
     private var timeout: DispatchWorkItem?
 
+    /// How the authorize URL reaches the user once the listener is up.
+    enum Delivery {
+        case open
+        case copyLink
+    }
+
+    private var delivery: Delivery = .open
+
     /// Runs the full flow and resolves once the browser round-trip completes,
     /// times out (~3 min), or fails to start. Safe to call again afterwards.
-    func start() async -> Outcome {
+    /// `.copyLink` puts the URL on the clipboard instead of opening it, for
+    /// accounts that live in a browser we can't target.
+    func start(delivery: Delivery = .open) async -> Outcome {
         await withCheckedContinuation { cont in
-            queue.async { [weak self] in self?.begin(cont) }
+            queue.async { [weak self] in
+                self?.delivery = delivery
+                self?.begin(cont)
+            }
         }
+    }
+
+    /// The CLI's manual path: the authorize page redirects to
+    /// platform.claude.com, which shows `code#state` for the user to paste
+    /// back. Needs no local listener, so it works where loopback is blocked.
+    @MainActor
+    func startWithCode() async -> Outcome {
+        let verifier = Self.randomURLSafe(32)
+        let state = Self.randomURLSafe(32)
+        let challenge = Self.base64URL(Data(SHA256.hash(data: Data(verifier.utf8))))
+        let redirect = ClaudeCredentials.manualRedirectURI
+        guard let url = Self.authorizeURL(challenge: challenge, state: state, redirectURI: redirect) else {
+            return .failed("bad authorize URL")
+        }
+        ClaudeSignInBrowser.current.open(url)
+
+        var hint = L10n.tr("Approve the page that just opened, then paste the code it shows here")
+        while true {
+            guard let pasted = Self.promptForCode(message: hint) else { return .canceled }
+            let parts = pasted.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: "#", maxSplits: 1)
+            guard parts.count == 2, String(parts[1]) == state else {
+                hint = L10n.tr("Copy the whole code from the page and try once more")
+                continue
+            }
+            let ok = await ClaudeCredentials.completeWebLogin(
+                code: String(parts[0]), codeVerifier: verifier, redirectURI: redirect, state: state
+            )
+            if ok {
+                NSApp.activate(ignoringOtherApps: true)
+                return .success
+            }
+            hint = L10n.tr("That code did not work")
+        }
+    }
+
+    @MainActor
+    private static func promptForCode(message: String) -> String? {
+        let alert = NSAlert()
+        alert.messageText = L10n.tr("Sign in with a code")
+        alert.informativeText = message
+        let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 320, height: 24))
+        alert.accessoryView = field
+        alert.addButton(withTitle: L10n.tr("Sign in"))
+        alert.addButton(withTitle: L10n.tr("Cancel"))
+        alert.window.initialFirstResponder = field
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return nil }
+        return field.stringValue
     }
 
     // MARK: - Flow
@@ -88,12 +149,26 @@ final class ClaudeWebLogin: @unchecked Sendable {
     }
 
     private func openAuthorizePage(challenge: String) {
-        guard var comps = URLComponents(string: ClaudeCredentials.authorizeURLBase) else {
-            finish(.failed("bad authorize base"))
+        guard let url = Self.authorizeURL(challenge: challenge, state: state, redirectURI: redirectURI) else {
+            finish(.failed("bad authorize URL"))
             return
         }
-        // Mirrors the `claude` CLI's authorize URL exactly (param set + 32-byte
-        // state); claude.ai rejects deviations with "Invalid request format".
+        let delivery = self.delivery
+        DispatchQueue.main.async {
+            switch delivery {
+            case .open:
+                ClaudeSignInBrowser.current.open(url)
+            case .copyLink:
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(url.absoluteString, forType: .string)
+            }
+        }
+    }
+
+    /// Mirrors the `claude` CLI's authorize URL exactly (param set + 32-byte
+    /// state); claude.ai rejects deviations with "Invalid request format".
+    private static func authorizeURL(challenge: String, state: String, redirectURI: String) -> URL? {
+        guard var comps = URLComponents(string: ClaudeCredentials.authorizeURLBase) else { return nil }
         comps.queryItems = [
             URLQueryItem(name: "code", value: "true"),
             URLQueryItem(name: "client_id", value: ClaudeCredentials.oauthClientID),
@@ -104,11 +179,7 @@ final class ClaudeWebLogin: @unchecked Sendable {
             URLQueryItem(name: "code_challenge_method", value: "S256"),
             URLQueryItem(name: "state", value: state),
         ]
-        guard let url = comps.url else {
-            finish(.failed("bad authorize URL"))
-            return
-        }
-        DispatchQueue.main.async { NSWorkspace.shared.open(url) }
+        return comps.url
     }
 
     private func armTimeout() {
@@ -181,6 +252,10 @@ final class ClaudeWebLogin: @unchecked Sendable {
         let http = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n"
             + "Content-Length: \(body.utf8.count)\r\nConnection: close\r\n\r\n\(body)"
         conn.send(content: http.data(using: .utf8), completion: .contentProcessed { _ in conn.cancel() })
+    }
+
+    func cancel() {
+        finish(.canceled)
     }
 
     private func finish(_ outcome: Outcome) {
