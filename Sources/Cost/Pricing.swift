@@ -10,7 +10,7 @@ import Foundation
 /// Unknown models silently price to $0 — same behavior as ccusage when
 /// LiteLLM has no entry.
 enum Pricing {
-    static let snapshotDate = "2026-07-13"
+    static let snapshotDate = "2026-09-27"
 
     struct Rates {
         let inputPerMillion: Double
@@ -23,9 +23,22 @@ enum Pricing {
         // Anthropic — LiteLLM lists Opus 4-5/4-6/4-7/4-8 at the same rates
         // (cheaper than the original Opus 4 because Anthropic re-tiered the
         // Opus line in 2025).
+        // Fable 5.1 keeps Fable 5's list price but cuts cache reads to $0.25.
+        "claude-fable-5-1": Rates(
+            inputPerMillion: 10, outputPerMillion: 50,
+            cacheCreationPerMillion: 12.50, cacheReadPerMillion: 0.25
+        ),
         "claude-fable-5": Rates(
             inputPerMillion: 10, outputPerMillion: 50,
             cacheCreationPerMillion: 12.50, cacheReadPerMillion: 1.00
+        ),
+        "claude-opus-5-5": Rates(
+            inputPerMillion: 4, outputPerMillion: 20,
+            cacheCreationPerMillion: 5.00, cacheReadPerMillion: 0.20
+        ),
+        "claude-opus-5": Rates(
+            inputPerMillion: 5, outputPerMillion: 25,
+            cacheCreationPerMillion: 6.25, cacheReadPerMillion: 0.50
         ),
         "claude-opus-4-8": Rates(
             inputPerMillion: 5, outputPerMillion: 25,
