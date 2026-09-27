@@ -52,7 +52,9 @@ struct WeeklyReportData {
             cost.claude.dailyTokens.last?.dayStart ?? .distantPast,
             cost.codex.dailyTokens.last?.dayStart ?? .distantPast
         )
-        let anchor = scanAnchor > .distantPast ? min(scanAnchor, today) : today
+        let customStart = ReportRangeStore.shared.weekStart.map { cal.startOfDay(for: $0) }
+        let anchor = customStart.flatMap { cal.date(byAdding: .day, value: 6, to: $0) }
+            ?? (scanAnchor > .distantPast ? min(scanAnchor, today) : today)
         let days: [Date] = (0..<7).reversed().compactMap {
             cal.date(byAdding: .day, value: -$0, to: anchor)
         }
@@ -69,13 +71,21 @@ struct WeeklyReportData {
         let codexWeek = codexDaily.reduce(0, +)
         let total = claudeWeek + codexWeek
 
-        let dollars = (cost.claude.weekByModel + cost.codex.weekByModel)
-            .reduce(0.0) { $0 + $1.dollars }
+        // A custom window rebuilds its rows from the daily history; the
+        // default keeps the scan's own week slice.
+        var claudeRows = cost.claude.weekByModel
+        var codexRows = cost.codex.weekByModel
+        if customStart != nil, let first = days.first,
+           let end = cal.date(byAdding: .day, value: 1, to: anchor) {
+            claudeRows = CostSummary.modelRows(daily: cost.claude.dailyByModel, from: first, to: end)
+            codexRows = CostSummary.modelRows(daily: cost.codex.dailyByModel, from: first, to: end)
+        }
+        let dollars = (claudeRows + codexRows).reduce(0.0) { $0 + $1.dollars }
 
         let zh = L10n.locale.identifier.hasPrefix("zh")
         let models = Self.rankedModels(
-            claudeRows: cost.claude.weekByModel,
-            codexRows: cost.codex.weekByModel,
+            claudeRows: claudeRows,
+            codexRows: codexRows,
             limit: 3,
             mode: mode
         )
@@ -388,7 +398,9 @@ struct ReportModelTable: View {
                             .font(.system(size: 10.5, weight: .heavy, design: .rounded))
                             .monospacedDigit()
                             .foregroundStyle(.white.opacity(0.88))
-                            .frame(width: 30, alignment: .trailing)
+                            .lineLimit(1)
+                            .fixedSize()
+                            .frame(minWidth: 30, alignment: .trailing)
                     }
                 }
             }

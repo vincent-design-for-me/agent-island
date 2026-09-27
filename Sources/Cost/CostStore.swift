@@ -224,6 +224,8 @@ final class CostStore: ObservableObject {
         var codexMonthUnknown: [String] = []
         var claudeDailyTokens: [DailyTokenBucket]
         var codexDailyTokens: [DailyTokenBucket]
+        var claudeDailyByModel: [DailyModelUsage]?
+        var codexDailyByModel: [DailyModelUsage]?
         var lastUpdated: Date?
     }
 
@@ -253,6 +255,8 @@ final class CostStore: ObservableObject {
             codexMonthUnknown: codex.month.unknownModels,
             claudeDailyTokens: claude.dailyTokens,
             codexDailyTokens: codex.dailyTokens,
+            claudeDailyByModel: claude.dailyByModel,
+            codexDailyByModel: codex.dailyByModel,
             lastUpdated: lastUpdated
         )
         if let data = try? Self.cacheEncoder.encode(snap) {
@@ -275,7 +279,8 @@ final class CostStore: ObservableObject {
                               series: snap.claudeMonthSeries,
                               label: CostBucketing.currentMonthLabel(), error: nil,
                               unknownModels: snap.claudeMonthUnknown),
-            dailyTokens: snap.claudeDailyTokens
+            dailyTokens: snap.claudeDailyTokens,
+            dailyByModel: snap.claudeDailyByModel ?? []
         )
         self.codex = ProviderCost(
             today: CostWindow(dollars: snap.codexToday, tokens: snap.codexTodayTokens,
@@ -287,7 +292,8 @@ final class CostStore: ObservableObject {
                               series: snap.codexMonthSeries,
                               label: CostBucketing.currentMonthLabel(), error: nil,
                               unknownModels: snap.codexMonthUnknown),
-            dailyTokens: snap.codexDailyTokens
+            dailyTokens: snap.codexDailyTokens,
+            dailyByModel: snap.codexDailyByModel ?? []
         )
         self.lastUpdated = snap.lastUpdated
     }

@@ -60,6 +60,9 @@ enum CostSummary {
         var monthTokensByModel: [String: Int] = [:]
         var monthWireByModel: [String: Int] = [:]
         var monthDollarsByModel: [String: Double] = [:]
+        // Per-day, per-model totals over the whole history window, so a
+        // report can be rebuilt for any date range without a rescan.
+        var dailyModel: [DailyModelKey: DailyModelUsage] = [:]
 
         // Drop events older than every window's start. Using `min(...)`
         // matters here because the rolling 7-day window straddles month
@@ -90,6 +93,15 @@ enum CostSummary {
                 if historyTokenBuckets.indices.contains(dayOffset) {
                     historyTokenBuckets[dayOffset] += tokens
                     historyBillableBuckets[dayOffset] += billable
+                }
+                if tokens > 0 || cost > 0 {
+                    let key = DailyModelKey(dayStart: eventDay, model: Pricing.canonicalModelName(event.model))
+                    var bucket = dailyModel[key]
+                        ?? DailyModelUsage(dayStart: eventDay, model: key.model, tokens: 0, wireTokens: 0, dollars: 0)
+                    bucket.tokens += billable
+                    bucket.wireTokens += tokens
+                    bucket.dollars += cost
+                    dailyModel[key] = bucket
                 }
             }
 
@@ -194,7 +206,10 @@ enum CostSummary {
                 tokens: historyTokenBuckets,
                 billableTokens: historyBillableBuckets,
                 calendar: cal
-            )
+            ),
+            dailyByModel: dailyModel.values.sorted {
+                $0.dayStart != $1.dayStart ? $0.dayStart < $1.dayStart : $0.model < $1.model
+            }
         )
     }
 
@@ -221,6 +236,18 @@ enum CostSummary {
                 billableTokens: billableTokens[index]
             )
         }
+    }
+
+    /// Per-model rows for an arbitrary calendar range `[start, end)`, rebuilt
+    /// from the daily history — the any-date report path.
+    static func modelRows(daily: [DailyModelUsage], from start: Date, to end: Date) -> [ModelUsageRow] {
+        var tokens: [String: Int] = [:], wire: [String: Int] = [:], dollars: [String: Double] = [:]
+        for bucket in daily where bucket.dayStart >= start && bucket.dayStart < end {
+            if bucket.tokens > 0 { tokens[bucket.model, default: 0] += bucket.tokens }
+            if bucket.wireTokens > 0 { wire[bucket.model, default: 0] += bucket.wireTokens }
+            if bucket.dollars > 0 { dollars[bucket.model, default: 0] += bucket.dollars }
+        }
+        return modelRows(tokensByModel: tokens, wireByModel: wire, dollarsByModel: dollars)
     }
 
     /// Build sorted `ModelUsageRow`s from the two parallel per-model maps

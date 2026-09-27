@@ -93,7 +93,7 @@ final class WeeklyReportWindowController: NSWindowController, NSWindowDelegate {
                 // Hugs the content exactly (card 420 + 26pt margins; buttons
                 // below) — a window wider than its content reads as a ghost
                 // slab around the card.
-                contentRect: NSRect(origin: .zero, size: NSSize(width: 472, height: 670)),
+                contentRect: NSRect(origin: .zero, size: NSSize(width: 472, height: 708)),
                 styleMask: [.borderless, .fullSizeContentView],
                 backing: .buffered,
                 defer: false
@@ -152,6 +152,7 @@ private struct WeeklyReportSheet: View {
     // row bigger than the weekly total" screenshots were day-old snapshots).
     @ObservedObject private var cost = CostStore.shared
     @ObservedObject private var tokenMode = TokenCountModeStore.shared
+    @ObservedObject private var reportRange = ReportRangeStore.shared
     @State private var copied = false
     @State private var coach: String?
     @State private var shareAnchor: NSView?
@@ -168,6 +169,8 @@ private struct WeeklyReportSheet: View {
             // Two actions, identical pills, both instant (renders come from
             // the warm cache). Copy → paste anywhere; Share → the system
             // share picker (AirDrop / Messages / installed extensions).
+            ReportRangeBar(kind: .weekly)
+
             HStack(spacing: 10) {
                 actionButton(copied ? L10n.tr("Copied") : L10n.tr("Copy image"), prominent: true) {
                     if copyImage() {
@@ -211,6 +214,10 @@ private struct WeeklyReportSheet: View {
             DispatchQueue.main.async { WeeklyReportRenderer.warmCache() }
         }
         .onReceive(tokenMode.objectWillChange) { _ in
+            WeeklyReportRenderer.invalidateCache()
+            DispatchQueue.main.async { WeeklyReportRenderer.warmCache() }
+        }
+        .onReceive(reportRange.objectWillChange) { _ in
             WeeklyReportRenderer.invalidateCache()
             DispatchQueue.main.async { WeeklyReportRenderer.warmCache() }
         }

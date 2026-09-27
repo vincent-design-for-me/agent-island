@@ -378,3 +378,7 @@
 "e.g. Work" = "e.g. Work";
 "Save" = "Save";
 "Cancel" = "Cancel";
+
+/* Any-date reports */
+"Report start date" = "Report start date";
+"Latest" = "Latest";

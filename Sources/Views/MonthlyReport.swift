@@ -24,17 +24,35 @@ struct MonthlyReportData {
         let today = Calendar.current.startOfDay(for: Date())
         let zh = L10n.locale.identifier.hasPrefix("zh")
 
-        let totalTokens = mode == .all
-            ? cost.claude.month.tokens + cost.codex.month.tokens
-            : cost.claude.month.billableTokens + cost.codex.month.billableTokens
-        let totalDollars = cost.claude.month.dollars + cost.codex.month.dollars
-        let claudeShare = totalTokens > 0
-            ? Double(mode == .all ? cost.claude.month.tokens : cost.claude.month.billableTokens)
-                / Double(totalTokens) : 0
+        var claudeTokens = mode == .all ? cost.claude.month.tokens : cost.claude.month.billableTokens
+        var codexTokens = mode == .all ? cost.codex.month.tokens : cost.codex.month.billableTokens
+        var claudeRows = cost.claude.monthByModel
+        var codexRows = cost.codex.monthByModel
+        var monthDate = today
+        let cal = Calendar.current
+        // A custom month rebuilds every figure from the daily history.
+        if let picked = ReportRangeStore.shared.month,
+           let start = cal.date(from: cal.dateComponents([.year, .month], from: picked)),
+           let end = cal.date(byAdding: .month, value: 1, to: start) {
+            func sum(_ buckets: [DailyTokenBucket]) -> Int {
+                buckets.filter { $0.dayStart >= start && $0.dayStart < end }
+                    .reduce(0) { $0 + (mode == .all ? $1.tokens : $1.billableTokens) }
+            }
+            claudeTokens = sum(cost.claude.dailyTokens)
+            codexTokens = sum(cost.codex.dailyTokens)
+            claudeRows = CostSummary.modelRows(daily: cost.claude.dailyByModel, from: start, to: end)
+            codexRows = CostSummary.modelRows(daily: cost.codex.dailyByModel, from: start, to: end)
+            monthDate = start
+        }
+        let totalTokens = claudeTokens + codexTokens
+        let totalDollars = ReportRangeStore.shared.month == nil
+            ? cost.claude.month.dollars + cost.codex.month.dollars
+            : (claudeRows + codexRows).reduce(0.0) { $0 + $1.dollars }
+        let claudeShare = totalTokens > 0 ? Double(claudeTokens) / Double(totalTokens) : 0
 
         let models = WeeklyReportData.rankedModels(
-            claudeRows: cost.claude.monthByModel,
-            codexRows: cost.codex.monthByModel,
+            claudeRows: claudeRows,
+            codexRows: codexRows,
             limit: 5,
             mode: mode
         )
@@ -48,7 +66,7 @@ struct MonthlyReportData {
         let tier = MilestoneLadder.tokenTier(lifetime: lifetime)
 
         return MonthlyReportData(
-            monthText: df.string(from: today),
+            monthText: df.string(from: monthDate),
             totalTokens: totalTokens,
             totalDollars: totalDollars,
             claudeShare: claudeShare,
@@ -199,7 +217,7 @@ final class MonthlyReportWindowController: NSWindowController, NSWindowDelegate 
         }
         if window == nil {
             let panel = MonthlyPanel(
-                contentRect: NSRect(origin: .zero, size: NSSize(width: 472, height: 670)),
+                contentRect: NSRect(origin: .zero, size: NSSize(width: 472, height: 708)),
                 styleMask: [.borderless, .fullSizeContentView],
                 backing: .buffered,
                 defer: false
@@ -245,6 +263,7 @@ private struct MonthlyReportSheet: View {
     // re-render when it commits, never freeze a stale launch snapshot.
     @ObservedObject private var cost = CostStore.shared
     @ObservedObject private var tokenMode = TokenCountModeStore.shared
+    @ObservedObject private var reportRange = ReportRangeStore.shared
     @State private var copied = false
     @State private var coach: String?
     @State private var shareAnchor: NSView?
@@ -254,6 +273,8 @@ private struct MonthlyReportSheet: View {
         VStack(spacing: 14) {
             MonthlyReportCard(data: .current())
                 .shadow(color: .black.opacity(0.30), radius: 10, y: 4)
+
+            ReportRangeBar(kind: .monthly)
 
             HStack(spacing: 10) {
                 pill(copied ? L10n.tr("Copied") : L10n.tr("Copy image")) {
@@ -293,6 +314,10 @@ private struct MonthlyReportSheet: View {
             DispatchQueue.main.async { MonthlyReportRenderer.warmCache() }
         }
         .onReceive(tokenMode.objectWillChange) { _ in
+            MonthlyReportRenderer.invalidateCache()
+            DispatchQueue.main.async { MonthlyReportRenderer.warmCache() }
+        }
+        .onReceive(reportRange.objectWillChange) { _ in
             MonthlyReportRenderer.invalidateCache()
             DispatchQueue.main.async { MonthlyReportRenderer.warmCache() }
         }

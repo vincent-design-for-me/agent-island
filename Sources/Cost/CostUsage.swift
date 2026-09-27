@@ -75,6 +75,21 @@ struct DailyTokenBucket: Codable {
     let billableTokens: Int
 }
 
+/// One model's totals on one calendar-local day. Lets reports cover any
+/// date range from the cached history instead of only this week / month.
+struct DailyModelUsage: Codable {
+    let dayStart: Date
+    let model: String
+    var tokens: Int
+    var wireTokens: Int
+    var dollars: Double
+}
+
+struct DailyModelKey: Hashable {
+    let dayStart: Date
+    let model: String
+}
+
 /// Per-provider cost summary: today + month-to-date in calendar-local time.
 struct ProviderCost {
     var today: CostWindow
@@ -92,6 +107,8 @@ struct ProviderCost {
     /// Calendar-local daily history, oldest first, with today included as
     /// the final bucket. Powers the overview contribution grid ranges.
     var dailyTokens: [DailyTokenBucket] = []
+    /// Per-day, per-model history (same span as `dailyTokens`).
+    var dailyByModel: [DailyModelUsage] = []
 
     static let empty = ProviderCost(
         today: CostWindow(
