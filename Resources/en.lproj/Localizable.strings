@@ -405,3 +405,9 @@
 "run grok to refresh" = "run grok to refresh";
 "%@ / %@ monthly" = "%@ / %@ monthly";
 "parse error" = "parse error";
+
+/* Notch slots */
+"Show on the notch" = "Show on the notch";
+"Pick at most two" = "Pick at most two";
+"Left" = "Left";
+"Right" = "Right";

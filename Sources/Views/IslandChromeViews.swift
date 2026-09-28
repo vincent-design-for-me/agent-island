@@ -86,11 +86,14 @@ struct GlowLayer: View {
 }
 
 struct LogoOverlay: View {
-    let image: NSImage?
-    let color: Color
-    let provider: AlertEngine.Provider
+    let slot: IslandProvider
+    /// Left flank (true) or right flank (false) of the notch.
+    let leading: Bool
     let edgePadding: CGFloat
     let topPadding: CGFloat
+
+    private var image: NSImage? { slot.logo }
+    private var color: Color { slot.color }
 
     @ObservedObject private var visibility = ProviderVisibilityStore.shared
     @ObservedObject private var monitor = ActivityMonitor.shared
@@ -108,7 +111,7 @@ struct LogoOverlay: View {
                 .scaleEffect(scale)
                 .rotationEffect(.degrees(spinAngle))
                 .shadow(color: tint.opacity(pulse ? 0.9 : 0.25), radius: glowRadius)
-                .padding(provider == .claude ? .leading : .trailing, edgePadding)
+                .padding(leading ? .leading : .trailing, edgePadding)
                 .padding(.top, topPadding)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.openMorph, value: isVisible)
@@ -135,7 +138,8 @@ struct LogoOverlay: View {
     }
 
     private var st: ActivityMonitor.State {
-        isVisible ? monitor.state(for: provider) : .idle
+        guard isVisible, let provider = slot.alertProvider else { return .idle }
+        return monitor.state(for: provider)
     }
 
     private var scale: CGFloat {
@@ -165,7 +169,7 @@ struct LogoOverlay: View {
         }
     }
 
-    private var spinDirection: Double { provider == .claude ? 1 : -1 }
+    private var spinDirection: Double { leading ? 1 : -1 }
 
     private func updateSpin(_ state: ActivityMonitor.State) {
         guard state == .working else {
@@ -181,19 +185,17 @@ struct LogoOverlay: View {
     }
 
     private var isVisible: Bool {
-        visibility.effectiveVisible(provider: provider)
+        guard let provider = slot.alertProvider else { return true }
+        return visibility.effectiveVisible(provider: provider)
     }
 
     private var providerLabel: String {
-        switch provider {
-        case .claude: return "Claude"
-        case .codex: return "OpenAI"
-        }
+        slot == .codex ? "OpenAI" : slot.displayName
     }
 }
 
 struct PeekPillOverlay: View {
-    let provider: AlertEngine.Provider
+    let slot: IslandProvider
     let slotWidth: CGFloat
     let topPadding: CGFloat
     let pillsVisible: Bool
@@ -204,21 +206,22 @@ struct PeekPillOverlay: View {
     var onTrailingFlank: Bool
 
     init(
-        provider: AlertEngine.Provider,
+        slot: IslandProvider,
         slotWidth: CGFloat,
         topPadding: CGFloat,
         pillsVisible: Bool,
-        onTrailingFlank: Bool? = nil
+        onTrailingFlank: Bool
     ) {
-        self.provider = provider
+        self.slot = slot
         self.slotWidth = slotWidth
         self.topPadding = topPadding
         self.pillsVisible = pillsVisible
-        self.onTrailingFlank = onTrailingFlank ?? (provider == .codex)
+        self.onTrailingFlank = onTrailingFlank
     }
 
     @ObservedObject private var visibility = ProviderVisibilityStore.shared
     @ObservedObject private var usageStore = UsageStore.shared
+    @ObservedObject private var extras = ExtraUsageStore.shared
     @ObservedObject private var alerts = AlertEngine.shared
 
     var body: some View {
@@ -244,7 +247,8 @@ struct PeekPillOverlay: View {
     }
 
     private var isVisible: Bool {
-        visibility.effectiveVisible(provider: provider)
+        guard let provider = slot.alertProvider else { return true }
+        return visibility.effectiveVisible(provider: provider)
     }
 
     private var pillContentWidth: CGFloat {
@@ -252,32 +256,25 @@ struct PeekPillOverlay: View {
     }
 
     private var currentWindow: WindowUsage {
-        switch provider {
+        switch slot {
         case .claude: return usageStore.claude.fiveHour
         case .codex: return usageStore.codex.fiveHour
+        case .cursor, .grok:
+            return slot.extra.flatMap { extras.usage[$0]?.fiveHour } ?? .unknown
         }
     }
 
     private var severity: AlertEngine.Severity {
-        switch provider {
+        switch slot {
         case .claude: return alerts.claudeSeverity
         case .codex: return alerts.codexSeverity
+        case .cursor, .grok: return .none
         }
     }
 
-    private var tint: Color {
-        switch provider {
-        case .claude: return IslandColor.claude
-        case .codex: return IslandColor.codex
-        }
-    }
+    private var tint: Color { slot.color }
 
-    private var providerLabel: String {
-        switch provider {
-        case .claude: return "Claude"
-        case .codex: return "Codex"
-        }
-    }
+    private var providerLabel: String { slot.displayName }
 
     private func peekLabel(for window: WindowUsage, provider: String) -> String {
         // Codex's tracked window is weekly since July 2026; speak the window

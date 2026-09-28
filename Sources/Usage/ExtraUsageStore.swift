@@ -52,7 +52,9 @@ final class ExtraUsageStore: ObservableObject {
 
     func refresh() {
         guard !AppEnvironment.isDemo, !inFlight else { return }
-        let targets = shown
+        // Slotted on the notch counts too, even with the panel row off.
+        let slotted = NotchSlotStore.shared.slots.compactMap(\.extra)
+        let targets = ExtraProvider.allCases.filter { shown.contains($0) || slotted.contains($0) }
         guard !targets.isEmpty else { return }
         inFlight = true
         Task {

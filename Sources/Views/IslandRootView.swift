@@ -14,6 +14,7 @@ struct IslandRootView: View {
     /// re-decoded both logos every render — inside a 120Hz TimelineView
     /// that's 240 main-thread decodes/sec. Cache once on appear.
     @State var claudeLogo: NSImage?
+    @ObservedObject var notchSlots = NotchSlotStore.shared
     @State var openaiLogo: NSImage?
 
     var body: some View {
@@ -72,22 +73,26 @@ struct IslandRootView: View {
                         .allowsHitTesting(false)
                 }
                 .overlay(alignment: .topLeading) {
-                    LogoOverlay(
-                        image: claudeLogo,
-                        color: IslandColor.claude,
-                        provider: .claude,
-                        edgePadding: logoEdgePadding(for: .claude),
-                        topPadding: max(0, (model.notch.height - 20) / 2)
-                    )
+                    if let slot = slotLayout.leadingLogo {
+                        LogoOverlay(
+                            slot: slot,
+                            leading: true,
+                            edgePadding: logoEdgePadding(for: slot),
+                            topPadding: max(0, (model.notch.height - 20) / 2)
+                        )
+                        .id(slot)
+                    }
                 }
                 .overlay(alignment: .topTrailing) {
-                    LogoOverlay(
-                        image: openaiLogo,
-                        color: IslandColor.codex,
-                        provider: .codex,
-                        edgePadding: logoEdgePadding(for: .codex),
-                        topPadding: max(0, (model.notch.height - 20) / 2)
-                    )
+                    if let slot = slotLayout.trailingLogo {
+                        LogoOverlay(
+                            slot: slot,
+                            leading: false,
+                            edgePadding: logoEdgePadding(for: slot),
+                            topPadding: max(0, (model.notch.height - 20) / 2)
+                        )
+                        .id(slot)
+                    }
                 }
                 .overlay(alignment: .topLeading) {
                     // Pill lives in the new outboard slot (the 78pt the
@@ -100,9 +105,9 @@ struct IslandRootView: View {
                     // side, number on the other (owner's call, 2026-07-16)
                     // instead of both crowding one end with the other half
                     // empty.
-                    if model.state != .compact, let provider = leadingPillProvider {
+                    if model.state != .compact, let slot = slotLayout.leadingPill {
                         PeekPillOverlay(
-                            provider: provider,
+                            slot: slot,
                             slotWidth: model.pillSlotWidth,
                             topPadding: max(0, (model.notch.height - 14) / 2),
                             pillsVisible: pillsVisible,
@@ -111,9 +116,9 @@ struct IslandRootView: View {
                     }
                 }
                 .overlay(alignment: .topTrailing) {
-                    if model.state != .compact, let provider = trailingPillProvider {
+                    if model.state != .compact, let slot = slotLayout.trailingPill {
                         PeekPillOverlay(
-                            provider: provider,
+                            slot: slot,
                             slotWidth: model.pillSlotWidth,
                             topPadding: max(0, (model.notch.height - 14) / 2),
                             pillsVisible: pillsVisible,
@@ -134,7 +139,7 @@ struct IslandRootView: View {
                 .contentShape(IslandShape())
                 .onTapGesture(perform: handleTap)
                 .onHover(perform: handleHover)
-                .animation(.openMorph, value: soloProvider)
+                .animation(.openMorph, value: slotLayout)
                 // Interface-scale magnifier (non-notch screens only): the
                 // content above laid out at base size; this blows it up to
                 // model.size, which window hit-testing already uses.
@@ -190,30 +195,6 @@ struct IslandRootView: View {
         }
     }
 
-    /// The one visible provider, or nil when both (or neither) show.
-    var soloProvider: AlertEngine.Provider? {
-        switch (providerVisibility.claudeShown, providerVisibility.codexShown) {
-        case (true, false): return .claude
-        case (false, true): return .codex
-        default: return nil
-        }
-    }
-
-    /// Which provider's pill occupies each flank. Duo: native sides.
-    /// Solo: the number crosses to the flank opposite its logo.
-    private var leadingPillProvider: AlertEngine.Provider? {
-        switch soloProvider {
-        case .claude: return nil      // logo holds the leading flank
-        case .codex:  return .codex   // number crosses over from the right
-        case nil:     return .claude
-        }
-    }
-
-    private var trailingPillProvider: AlertEngine.Provider? {
-        switch soloProvider {
-        case .claude: return .claude  // number crosses over from the left
-        case .codex:  return nil      // logo holds the trailing flank
-        case nil:     return .codex
-        }
-    }
+    /// Which providers sit on each flank, from the notch slot picker.
+    var slotLayout: NotchSlotStore.Layout { notchSlots.layout }
 }

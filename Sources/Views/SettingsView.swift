@@ -641,6 +641,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            NotchSlotPicker()
         }
         .padding(.horizontal, 14)
         .padding(.top, 18)

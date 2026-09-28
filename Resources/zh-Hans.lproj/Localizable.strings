@@ -413,3 +413,9 @@
 "run grok to refresh" = "运行 grok 以刷新";
 "%@ / %@ monthly" = "本月 %@ / %@";
 "parse error" = "解析失败";
+
+/* Notch slots */
+"Show on the notch" = "刘海显示";
+"Pick at most two" = "最多选两个";
+"Left" = "左";
+"Right" = "右";
