@@ -6,10 +6,24 @@ tag was cut.
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-09
+
+First release of the self-maintained fork. The upstream repository and its 2.1.x builds are gone, so the 2.x features were rebuilt on the 1.7.1 source (reference: the MIT Windows port newton5555/AgentIsland-Csharp). Auto-update stays off in this fork; install by building locally.
+
 ### Added
+- macOS: Codex account switching — save the current login under a name, switch in one click, forget one, and optionally rotate to the next saved account when the live one reaches 100%. Accounts live in `~/.codex/agentisland-accounts/` (same store as 2.x and Windows) and are matched by `account_id`, so a token refresh never strands or duplicates an account.
+- macOS: reports for any date — the weekly card takes a start date, the monthly card steps through months. Rebuilt from a new per-day, per-model history kept with the scan, so no rescan is needed.
+- macOS: Claude sign-in options — pick the browser, Chrome/Edge/Brave profile, or an incognito window; copy the login link; or paste a `code#state` like the CLI's manual flow.
+- macOS: Cursor and Grok quota rows under the Claude/Codex tiles, with settings toggles. Both are read-only on the providers' own credentials (Grok never refreshes or writes `~/.grok/auth.json`).
+- macOS: notch slot picker — any two of Claude, Codex, Cursor, Grok on the collapsed notch. Uses the 2.x `enabledProviders.v1` key so an existing choice carries over.
+- macOS: settings sidebar (Providers, Display, Alerts, General, Status guide) and a one-time what's-new tour after an update.
 - macOS: the usage calendar now shows the Codex client's own official figures alongside the local ledger — lifetime and per-day, fetched from the same endpoint the official personal-usage page renders from. An 85-day comparison proved the server-side count cannot be reconstructed from local logs (it aggregates every device and applies its own request accounting), so the official number is now displayed as-is, labeled, instead of being approximated.
 
 ### Fixed
+- macOS: in-app Claude sign-in failed with "Invalid request format". The authorize URL now matches the current `claude` CLI exactly (`code=true` plus a 32-byte `state`).
+- macOS: Opus 5, Opus 5.5 and Fable 5.1 were unpriced, so they read $0 and vanished from the report cards' model breakdown. Added to the pricing table.
+- macOS: a 100% model share no longer wraps onto two lines on the report cards.
+- macOS: GitHub and update-check links pointed at the deleted upstream repository; they now point at this fork.
 - macOS: the Settings token-metric choice (All tokens / Input + output) now actually drives the usage calendar and both report cards. It was wired only into the cost page hero — the calendar hardcoded "all", so flipping the setting looked like a no-op (owner report).
 - macOS: the weekly card could show a single model row bigger than the weekly total (community screenshots). Right after launch the card rendered from the restored snapshot, but its 7-day window was anchored to the wall clock while the model table's window was anchored to the snapshot's scan day — a full day of shear between the two series. Every number on the card now anchors to the snapshot's own day, opening the report kicks a rescan, and the card re-renders live the moment fresh data commits (the copy/share cache re-warms too).
 
