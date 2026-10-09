@@ -49,8 +49,8 @@ cp ./Resources/gemini_logo.pdf "$RES_DIR/gemini_logo.pdf"
 cp ./Resources/duel-claude-wins.png "$RES_DIR/duel-claude-wins.png"
 cp ./Resources/duel-codex-wins.png "$RES_DIR/duel-codex-wins.png"
 cp ./Resources/duel-draw.png "$RES_DIR/duel-draw.png"
-cp ./Resources/agentisland_logo.png "$RES_DIR/agentisland_logo.png"
-cp ./Resources/AgentIsland.icns "$RES_DIR/AgentIsland.icns"
+cp ./Resources/gauge_logo.png "$RES_DIR/gauge_logo.png"
+cp ./Resources/Gauge.icns "$RES_DIR/Gauge.icns"
 find ./Resources -maxdepth 1 -type d -name '*.lproj' -exec cp -R {} "$RES_DIR/" \;
 
 # Embed Sparkle.framework. -a preserves the symlinks inside Versions/.
@@ -99,7 +99,7 @@ cat > "$CONTENTS/Info.plist" <<EOF
   <key>CFBundleVersion</key><string>$VERSION</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
   <key>CFBundleExecutable</key><string>$APP_NAME</string>
-  <key>CFBundleIconFile</key><string>AgentIsland</string>
+  <key>CFBundleIconFile</key><string>Gauge</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>LSMinimumSystemVersion</key><string>$DEPLOYMENT_TARGET</string>
   <key>LSUIElement</key><true/>

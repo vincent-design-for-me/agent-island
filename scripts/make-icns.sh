@@ -1,47 +1,44 @@
 #!/bin/bash
-# Regenerate Resources/AgentIsland.icns + Resources/agentisland_logo.png from
-# the canonical Assets/ source files. Run after editing any of:
-#   - Assets/agentisland-app-icon-light.png  (the in-Dock icon, default source)
-#   - Assets/agentisland-app-icon-dark.png   (alternate; SOURCE= override)
-#   - Assets/agentisland-logo.png            (the brand glyph used in Settings)
+# Regenerate Resources/Gauge.icns + Resources/gauge_logo.png from the canonical
+# brand source, Assets/gauge-app-icon.png (any square PNG with a transparent
+# surround). The rounded-rect body is detected from alpha and fitted to
+# Apple's icon grid (824px body on a 1024px canvas), so the icon sits at the
+# same size as other apps in the Dock; near-invisible speckle (alpha < 12) is
+# dropped so it can't fringe on light backgrounds.
 #
-# Override: SOURCE=Assets/agentisland-app-icon-dark.png ./scripts/make-icns.sh
+# Override: SOURCE=path/to/icon.png ./scripts/make-icns.sh
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-ICON_SOURCE="${SOURCE:-Assets/agentisland-app-icon-light.png}"
-GLYPH_SOURCE="Assets/agentisland-logo.png"
-ICNS_OUT="Resources/AgentIsland.icns"
-GLYPH_OUT="Resources/agentisland_logo.png"
+SOURCE="${SOURCE:-Assets/gauge-app-icon.png}"
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+mkdir -p "$WORK/Gauge.iconset"
 
-for f in "$ICON_SOURCE" "$GLYPH_SOURCE"; do
-  if [[ ! -f "$f" ]]; then
-    echo "error: source missing: $f" >&2
-    exit 1
-  fi
-done
+python3 - "$SOURCE" "$WORK" <<'PY'
+import sys
+from PIL import Image
+source, work = sys.argv[1], sys.argv[2]
+src = Image.open(source).convert("RGBA")
+r, g, b, a = src.split()
+a = a.point(lambda v: 0 if v < 12 else v)
+src = Image.merge("RGBA", (r, g, b, a))
+body = a.point(lambda v: 255 if v > 200 else 0).getbbox()
+scale = 824 / max(body[2] - body[0], body[3] - body[1])
+big = src.resize((round(src.width * scale), round(src.height * scale)), Image.LANCZOS)
+cx = (body[0] + body[2]) / 2 * scale
+cy = (body[1] + body[3]) / 2 * scale
+canvas = Image.new("RGBA", (1024, 1024), (0, 0, 0, 0))
+canvas.alpha_composite(big, (round(512 - cx), round(512 - cy)))
+canvas.save(f"{work}/icon_1024.png")
+for size in (16, 32, 128, 256, 512):
+    for k in (1, 2):
+        suffix = "@2x" if k == 2 else ""
+        canvas.resize((size * k, size * k), Image.LANCZOS).save(
+            f"{work}/Gauge.iconset/icon_{size}x{size}{suffix}.png")
+PY
 
-TMP=$(mktemp -d)
-ICONSET="$TMP/AgentIsland.iconset"
-mkdir "$ICONSET"
-
-# Ten sizes the macOS HIG asks for. iconutil bundles them into a single .icns.
-sips -z 16   16   "$ICON_SOURCE" --out "$ICONSET/icon_16x16.png"      >/dev/null
-sips -z 32   32   "$ICON_SOURCE" --out "$ICONSET/icon_16x16@2x.png"   >/dev/null
-sips -z 32   32   "$ICON_SOURCE" --out "$ICONSET/icon_32x32.png"      >/dev/null
-sips -z 64   64   "$ICON_SOURCE" --out "$ICONSET/icon_32x32@2x.png"   >/dev/null
-sips -z 128  128  "$ICON_SOURCE" --out "$ICONSET/icon_128x128.png"    >/dev/null
-sips -z 256  256  "$ICON_SOURCE" --out "$ICONSET/icon_128x128@2x.png" >/dev/null
-sips -z 256  256  "$ICON_SOURCE" --out "$ICONSET/icon_256x256.png"    >/dev/null
-sips -z 512  512  "$ICON_SOURCE" --out "$ICONSET/icon_256x256@2x.png" >/dev/null
-sips -z 512  512  "$ICON_SOURCE" --out "$ICONSET/icon_512x512.png"    >/dev/null
-sips -z 1024 1024 "$ICON_SOURCE" --out "$ICONSET/icon_512x512@2x.png" >/dev/null
-
-iconutil -c icns "$ICONSET" -o "$ICNS_OUT"
-rm -rf "$TMP"
-
-cp "$GLYPH_SOURCE" "$GLYPH_OUT"
-
-echo "✓ $ICNS_OUT  ←  $ICON_SOURCE  ($(du -h "$ICNS_OUT" | cut -f1))"
-echo "✓ $GLYPH_OUT  ←  $GLYPH_SOURCE  ($(du -h "$GLYPH_OUT" | cut -f1))"
+iconutil -c icns "$WORK/Gauge.iconset" -o Resources/Gauge.icns
+cp "$WORK/icon_1024.png" Resources/gauge_logo.png
+echo "wrote Resources/Gauge.icns and Resources/gauge_logo.png from $SOURCE"

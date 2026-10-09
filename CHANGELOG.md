@@ -6,6 +6,11 @@ tag was cut.
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-10-09
+
+### Changed
+- macOS: new Gauge brand icon (neon circular-refresh mark) for the app, Dock/Finder, the settings sidebar and the report cards. Source lives at `Assets/gauge-app-icon.png`; `scripts/make-icns.sh` fits it to Apple's icon grid (824px body on 1024px) and regenerates `Resources/Gauge.icns` + `Resources/gauge_logo.png`.
+
 ## [2.3.0] - 2026-10-09
 
 ### Changed

@@ -5,14 +5,14 @@ import AppKit
 /// gutter and the duplicate "NOW" stats from the previous design.
 ///
 /// Three elements left to right: the AgentIsland brand mark (the curly-
-/// brace island glyph that ships in `Resources/agentisland_logo.png`,
+/// brace island glyph that ships in `Resources/gauge_logo.png`,
 /// rendered from a transparent template image), the
 /// app name + tagline, and a version pill on the right.
 struct BrandHeader: View {
     let version: String
 
     private var logo: NSImage? {
-        Bundle.main.url(forResource: "agentisland_logo", withExtension: "png")
+        Bundle.main.url(forResource: "gauge_logo", withExtension: "png")
             .flatMap { NSImage(contentsOf: $0) }
     }
 
@@ -73,7 +73,7 @@ struct SidebarBrand: View {
     let version: String
 
     private var logo: NSImage? {
-        Bundle.main.url(forResource: "agentisland_logo", withExtension: "png")
+        Bundle.main.url(forResource: "gauge_logo", withExtension: "png")
             .flatMap { NSImage(contentsOf: $0) }
     }
 
