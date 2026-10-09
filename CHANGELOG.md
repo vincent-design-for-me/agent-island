@@ -6,6 +6,14 @@ tag was cut.
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-10-09
+
+### Changed
+- macOS: the app is renamed **Gauge** — app bundle (`Gauge.app`), Finder/Spotlight name, settings, menus, alerts, and the report cards' header ("GAUGE WEEKLY" / "GAUGE MONTHLY"). The bundle identifier stays `dev.agentisland.AgentIsland`, so settings, Launch at Login, saved Codex accounts and the usage archive carry over. Release DMGs are now `Gauge-X.Y.Z.dmg`.
+
+### Fixed
+- macOS: a sync under a minute old reads "just now" — RelativeDateTimeFormatter phrased a zero gap as the future ("in 0 seconds" / "0秒后"), which the 2.2.1 clamp did not cure.
+
 ## [2.2.3] - 2026-10-09
 
 ### Added

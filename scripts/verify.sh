@@ -11,7 +11,7 @@ cd "$(dirname "$0")/.."
 ./scripts/test-reminder-delivery-key.sh
 ./build.sh
 
-BIN="./build/AgentIsland.app/Contents/MacOS/AgentIsland"
+BIN="./build/Gauge.app/Contents/MacOS/Gauge"
 # Demo mode: the smoke instance shares the real user's defaults/keychain, so a
 # plain launch can catch-up-fire a real `--dangerously-skip-permissions`
 # resume or interrupt a Claude refresh-token rotation mid-write. Demo skips

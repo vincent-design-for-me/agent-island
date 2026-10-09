@@ -47,7 +47,7 @@ If it is rotated, regenerate via the original instructions in `docs/SPARKLE.md`.
 If you want to verify Sparkle's UI before tagging:
 
 ```sh
-./release.sh                  # produces dist/AgentIsland-X.Y.Z.dmg + dist/appcast.xml
+./release.sh                  # produces dist/Gauge-X.Y.Z.dmg + dist/appcast.xml
                               # (uses Keychain key — no env vars needed locally)
 ```
 

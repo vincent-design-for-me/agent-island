@@ -21,7 +21,7 @@ struct BrandHeader: View {
             mark
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Agent Island")
+                Text("Gauge")
                     .font(Typography.brand)
                     .tracking(-0.15)
                     .foregroundStyle(.white.opacity(0.92))
@@ -88,7 +88,7 @@ struct SidebarBrand: View {
                     .frame(width: 22, height: 22)
             }
             VStack(alignment: .leading, spacing: 1) {
-                Text("Agent Island")
+                Text("Gauge")
                     .font(Typography.brand)
                     .foregroundStyle(.white.opacity(0.92))
                 Text("v\(version)")

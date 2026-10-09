@@ -35,7 +35,7 @@
 "Click to refresh now" = "点击立即刷新";
 "click to cycle" = "点击切换";
 "Codex" = "Codex";
-"AgentIsland panel" = "Agent Island 面板";
+"AgentIsland panel" = "Gauge 面板";
 "Cost" = "成本";
 "Counts everything — input, output, and cache. Mirrors ccusage." = "统计所有 token：输入、输出和缓存；与 ccusage 一致";
 "Crit" = "危急";
@@ -51,8 +51,8 @@
 "last scan %@" = "上次扫描 %@";
 "last scan %@ · pricing data %dd old" = "上次扫描 %@ · 价格数据已过 %d 天";
 "Launch at Login" = "登录时启动";
-"Move Agent Island into Applications, then relaunch it and try again" = "请先把 Agent Island 移入「应用程序」，重新打开后再试";
-"Allow Agent Island under System Settings → General → Login Items" = "请在系统设置 → 通用 → 登录项中允许 Agent Island";
+"Move Agent Island into Applications, then relaunch it and try again" = "请先把 Gauge 移入「应用程序」，重新打开后再试";
+"Allow Agent Island under System Settings → General → Login Items" = "请在系统设置 → 通用 → 登录项中允许 Gauge";
 "Language" = "语言";
 "License" = "许可证";
 "Live" = "实时";
@@ -70,7 +70,7 @@
 "No-notch Mac" = "无刘海";
 "Notched Mac" = "有刘海";
 "Numeric" = "数字";
-"Open AgentIsland when you sign in." = "登录系统时打开 Agent Island";
+"Open AgentIsland when you sign in." = "登录系统时打开 Gauge";
 "Overview" = "概览";
 "Overview shows %@ usage history" = "概览显示 %@ 年使用历史";
 "Pinned to a specific display. Falls back to Auto if unplugged." = "固定到指定屏幕；断开后回退为自动";
@@ -79,7 +79,7 @@
 "Providers" = "服务";
 "Providers Hidden" = "服务已隐藏";
 "Quit" = "退出";
-"Quit AgentIsland" = "退出 Agent Island";
+"Quit AgentIsland" = "退出 Gauge";
 "Re-authenticate" = "重新认证";
 "Claude" = "Claude";
 "Re-enable in Settings → Providers" = "在设置 → 服务中重新启用";
@@ -90,7 +90,7 @@
 "resets in %@" = "%@ 后重置";
 "Resets in %@" = "%@ 后重置";
 "Language changed" = "语言已切换";
-"The new language applies now. A few date and number labels update after AgentIsland restarts." = "新语言立即生效；个别日期和数字标签会在 Agent Island 重启后更新";
+"The new language applies now. A few date and number labels update after AgentIsland restarts." = "新语言立即生效；个别日期和数字标签会在 Gauge 重启后更新";
 "OK" = "好";
 "Restart now" = "立即重启";
 "Ring" = "环形";
@@ -173,7 +173,7 @@
 "Share monthly report" = "分享月报";
 "Share monthly report…" = "分享本月月报…";
 "network drop" = "网络中断,已保留上次数据";
-"Copied! Post it and bring a friend to the island 🏝️ Thanks for spreading the word" = "已复制!发出去带朋友一起上岛 🏝️ 感谢你帮 Agent Island 宣传";
+"Copied! Post it and bring a friend to the island 🏝️ Thanks for spreading the word" = "已复制!发出去带朋友一起上岛 🏝️ 感谢你帮 Gauge 宣传";
 "Tip: AirDrop it to your iPhone — it lands in Photos, ready to post 📲" = "小技巧:隔空投送到 iPhone,图片直接进相册,随手就能发 📲";
 "Drifter" = "漂流者";
 "Islander" = "登岛者";
@@ -200,7 +200,7 @@
 /* Auto-Trigger (Triggers tab) */
 "Triggers" = "自动续跑";
 "Auto-Trigger" = "自动续跑";
-"When your AI limit resets, auto-send a message so a session keeps running." = "用量恢复后，让 Agent Island 自动续跑指定会话";
+"When your AI limit resets, auto-send a message so a session keeps running." = "用量恢复后，让 Gauge 自动续跑指定会话";
 "No triggers yet — add one below." = "还没有规则，在下面加一条";
 "New trigger" = "新建续跑规则";
 "Message" = "消息";
@@ -233,7 +233,7 @@
 "Working" = "正在跑";
 "The logo rotates while a session is running." = "会话运行时，图标会持续旋转";
 "Your turn" = "该你回复";
-"A thread finished — Agent Island opens an alarm window so you can reply." = "会话已经结束时，Agent Island 会像闹钟一样弹出来提醒你回复";
+"A thread finished — Agent Island opens an alarm window so you can reply." = "会话已经结束时，Gauge 会像闹钟一样弹出来提醒你回复";
 
 /* Status guide tab */
 "Status" = "状态说明";
@@ -242,7 +242,7 @@
 "What the island's two logos are telling you." = "顶部条里的两个图标在告诉你什么";
 "Safety" = "执行安全";
 "Auto-resume kill switch" = "自动续跑总开关";
-"When off, Agent Island will never spawn Claude or Codex resume commands." = "关闭后，Agent Island 不会启动任何 Claude 或 Codex 续跑命令";
+"When off, Agent Island will never spawn Claude or Codex resume commands." = "关闭后，Gauge 不会启动任何 Claude 或 Codex 续跑命令";
 "Records" = "运行日志";
 "Open the folder with blocked and executed auto-resume records." = "打开日志文件夹，查看被拦截或已执行的续跑操作";
 "Allow resume" = "允许续跑";
@@ -315,7 +315,7 @@
 "Codex: %@" = "Codex：%@";
 "Refresh usage" = "刷新用量";
 "Open Settings" = "打开设置";
-"Quit Agent Island" = "退出 Agent Island";
+"Quit Agent Island" = "退出 Gauge";
 
 /* 1.5.3 quota display mode + Claude clipboard assist */
 "Show remaining instead of used" = "显示剩余而不是已用";
@@ -367,7 +367,7 @@
 
 /* update nudge */
 "Update available" = "有新版本";
-"Agent Island %@ is out — you're on %@" = "Agent Island %@ 已发布,当前是 %@";
+"Agent Island %@ is out — you're on %@" = "Gauge %@ 已发布,当前是 %@";
 "Update" = "去更新";
 "You're up to date" = "已是最新版本";
 "Couldn't check for updates" = "检查更新失败,稍后再试";
@@ -437,3 +437,5 @@
 "Cursor's billing period and Grok's weekly pool show under Claude and Codex. Choose any two providers for the notch." = "Cursor 的计费周期额度和 Grok 的每周额度显示在 Claude、Codex 下方；刘海上可以任选两个服务商。";
 "Reports for any date" = "任意日期的报告";
 "Pick a start date for the weekly card or step back through months. Opus 5, Opus 5.5 and Fable 5.1 are now priced." = "周报可以选开始日期，月报可以往前翻月份。Opus 5、Opus 5.5、Fable 5.1 也有价格了。";
+
+"just now" = "刚刚";

@@ -16,7 +16,7 @@ enum CodexCredentials {
         let command = "\(shellQuoted(path)) login"
         let script = """
         #!/bin/zsh
-        echo "Agent Island is opening Codex login..."
+        echo "Gauge is opening Codex login..."
         exec \(command)
         """
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent("AgentIsland", isDirectory: true)

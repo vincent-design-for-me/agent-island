@@ -334,7 +334,7 @@ struct ReportCardHeader: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 22, height: 22)
             }
-            (Text("AGENT ISLAND ")
+            (Text("GAUGE ")
                 .foregroundColor(.white.opacity(0.88))
              + Text(kind)
                 .foregroundColor(IslandColor.brandTeal))

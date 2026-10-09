@@ -35,7 +35,7 @@
 "Click to refresh now" = "Click to refresh now";
 "click to cycle" = "click to cycle";
 "Codex" = "Codex";
-"AgentIsland panel" = "Agent Island panel";
+"AgentIsland panel" = "Gauge panel";
 "Cost" = "Cost";
 "Counts everything — input, output, and cache. Mirrors ccusage." = "Counts everything — input, output, and cache. Mirrors ccusage";
 "Crit" = "Crit";
@@ -51,8 +51,8 @@
 "last scan %@" = "last scan %@";
 "last scan %@ · pricing data %dd old" = "last scan %@ · pricing data %dd old";
 "Launch at Login" = "Launch at Login";
-"Move Agent Island into Applications, then relaunch it and try again" = "Move Agent Island into Applications, then relaunch it and try again";
-"Allow Agent Island under System Settings → General → Login Items" = "Allow Agent Island under System Settings → General → Login Items";
+"Move Agent Island into Applications, then relaunch it and try again" = "Move Gauge into Applications, then relaunch it and try again";
+"Allow Agent Island under System Settings → General → Login Items" = "Allow Gauge under System Settings → General → Login Items";
 "Language" = "Language";
 "License" = "License";
 "Live" = "Live";
@@ -70,7 +70,7 @@
 "No-notch Mac" = "No notch";
 "Notched Mac" = "Notch";
 "Numeric" = "Numeric";
-"Open AgentIsland when you sign in." = "Open Agent Island when you sign in";
+"Open AgentIsland when you sign in." = "Open Gauge when you sign in";
 "Overview" = "Overview";
 "Overview shows %@ usage history" = "Overview shows %@ usage history";
 "Pinned to a specific display. Falls back to Auto if unplugged." = "Pinned to a specific display. Falls back to Auto if unplugged";
@@ -79,7 +79,7 @@
 "Providers" = "Providers";
 "Providers Hidden" = "Providers Hidden";
 "Quit" = "Quit";
-"Quit AgentIsland" = "Quit Agent Island";
+"Quit AgentIsland" = "Quit Gauge";
 "Re-authenticate" = "Re-authenticate";
 "Claude" = "Claude";
 "Re-enable in Settings → Providers" = "Re-enable in Settings → Providers";
@@ -90,7 +90,7 @@
 "resets in %@" = "resets in %@";
 "Resets in %@" = "Resets in %@";
 "Language changed" = "Language changed";
-"The new language applies now. A few date and number labels update after AgentIsland restarts." = "The new language applies now. A few date and number labels update after Agent Island restarts";
+"The new language applies now. A few date and number labels update after AgentIsland restarts." = "The new language applies now. A few date and number labels update after Gauge restarts";
 "OK" = "OK";
 "Restart now" = "Restart now";
 "Ring" = "Ring";
@@ -222,7 +222,7 @@
 "No active threads" = "No resumable sessions";
 "Safety" = "Safety";
 "Auto-resume kill switch" = "Auto-resume master switch";
-"When off, Agent Island will never spawn Claude or Codex resume commands." = "When off, Agent Island will never spawn Claude or Codex resume commands";
+"When off, Agent Island will never spawn Claude or Codex resume commands." = "When off, Gauge will never spawn Claude or Codex resume commands";
 "Records" = "Run logs";
 "Open the folder with blocked and executed auto-resume records." = "Open the folder with blocked and executed resume attempts";
 "Allow resume" = "Allow resume";
@@ -240,7 +240,7 @@
 "The logo rotates while a session is running." = "The logo rotates while a session is running";
 "Your turn" = "Your turn";
 "your turn" = "your turn";
-"A thread finished — Agent Island opens an alarm window so you can reply." = "A session finished — Agent Island opens an alarm window so you can reply";
+"A thread finished — Agent Island opens an alarm window so you can reply." = "A session finished — Gauge opens an alarm window so you can reply";
 "stalled" = "paused";
 "auth required" = "login required";
 "Needs attention" = "Needs attention";
@@ -307,7 +307,7 @@
 "Codex: %@" = "Codex: %@";
 "Refresh usage" = "Refresh usage";
 "Open Settings" = "Open Settings";
-"Quit Agent Island" = "Quit Agent Island";
+"Quit Agent Island" = "Quit Gauge";
 
 /* 1.5.3 quota display mode + Claude clipboard assist */
 "Show remaining instead of used" = "Show remaining instead of used";
@@ -359,7 +359,7 @@
 
 /* update nudge */
 "Update available" = "Update available";
-"Agent Island %@ is out — you're on %@" = "Agent Island %@ is out — you're on %@";
+"Agent Island %@ is out — you're on %@" = "Gauge %@ is out — you're on %@";
 "Update" = "Update";
 "You're up to date" = "You're up to date";
 "Couldn't check for updates" = "Couldn't check for updates";
@@ -429,3 +429,5 @@
 "Cursor's billing period and Grok's weekly pool show under Claude and Codex. Choose any two providers for the notch." = "Cursor's billing period and Grok's weekly pool show under Claude and Codex. Choose any two providers for the notch.";
 "Reports for any date" = "Reports for any date";
 "Pick a start date for the weekly card or step back through months. Opus 5, Opus 5.5 and Fable 5.1 are now priced." = "Pick a start date for the weekly card or step back through months. Opus 5, Opus 5.5 and Fable 5.1 are now priced.";
+
+"just now" = "just now";

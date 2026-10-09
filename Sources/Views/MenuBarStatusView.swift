@@ -46,7 +46,7 @@ struct MenuBarStatusView: View {
     @ObservedObject private var usage = UsageStore.shared
 
     var body: some View {
-        Text("Agent Island")
+        Text("Gauge")
         Divider()
         Text(L10n.tr("Claude: %@", monitor.claude.label))
         Text(L10n.tr("Codex: %@", monitor.codex.label))

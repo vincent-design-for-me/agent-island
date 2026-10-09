@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-APP_NAME="AgentIsland"
+APP_NAME="Gauge"
 BUNDLE_ID="dev.agentisland.AgentIsland"
 VERSION="$(cat VERSION)"
 if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -94,7 +94,7 @@ cat > "$CONTENTS/Info.plist" <<EOF
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key><string>$APP_NAME</string>
-  <key>CFBundleDisplayName</key><string>AgentIsland</string>
+  <key>CFBundleDisplayName</key><string>Gauge</string>
   <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
   <key>CFBundleVersion</key><string>$VERSION</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>

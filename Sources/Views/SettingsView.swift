@@ -788,7 +788,7 @@ struct SettingsView: View {
                 ? L10n.tr("scanning local logs… · pricing data %dd old", days)
                 : L10n.tr("scanning local logs…")
         } else if let updated = cost.lastUpdated {
-            let relative = Self.relativeFormatter.localizedString(for: min(updated, Date()), relativeTo: Date())
+            let relative = Self.syncedAgo(updated)
             return isStale
                 ? L10n.tr("last scan %@ · pricing data %dd old", relative, days)
                 : L10n.tr("last scan %@", relative)
@@ -1006,7 +1006,7 @@ struct SettingsView: View {
     private func providerSubtitle(_ u: AppUsage) -> String {
         let synced: String = {
             guard let updated = usage.lastUpdated else { return L10n.tr("idle") }
-            return L10n.tr("synced %@", Self.relativeFormatter.localizedString(for: min(updated, Date()), relativeTo: Date()))
+            return L10n.tr("synced %@", Self.syncedAgo(updated))
         }()
         // Codex's weekly-only world: one window, one number — the second
         // slot would just read "⚠ no data" forever.
@@ -1019,7 +1019,7 @@ struct SettingsView: View {
     private func extraSubtitle(_ provider: ExtraProvider, _ u: AppUsage) -> String {
         guard extras.enabled.contains(provider) else { return L10n.tr("off") }
         let synced = extras.lastUpdated[provider].map {
-            L10n.tr("synced %@", Self.relativeFormatter.localizedString(for: min($0, Date()), relativeTo: Date()))
+            L10n.tr("synced %@", Self.syncedAgo($0))
         } ?? L10n.tr("idle")
         let detail = u.detail.map { " · \($0)" } ?? ""
         return "\(synced) · \(Self.windowCaption(u.fiveHour))\(detail)"
@@ -1029,6 +1029,14 @@ struct SettingsView: View {
     /// sentinel (Codex is weekly-only), not a failure.
     private static func needsReauth(_ u: AppUsage) -> Bool {
         [u.fiveHour, u.weekly].contains { $0.error != nil && $0.error != "no data" }
+    }
+
+    /// RelativeDateTimeFormatter phrases a zero gap as the future ("in 0
+    /// seconds" / "0秒后"), so anything under a minute reads "just now".
+    private static func syncedAgo(_ date: Date) -> String {
+        Date().timeIntervalSince(date) < 60
+            ? L10n.tr("just now")
+            : relativeFormatter.localizedString(for: date, relativeTo: Date())
     }
 
     private static func windowCaption(_ w: WindowUsage) -> String {

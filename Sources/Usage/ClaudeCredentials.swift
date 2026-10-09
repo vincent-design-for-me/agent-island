@@ -407,7 +407,7 @@ enum ClaudeCredentials {
         let command = "\(shellQuoted(path)) auth login"
         let script = """
         #!/bin/zsh
-        echo "Agent Island is opening Claude Code login..."
+        echo "Gauge is opening Claude Code login..."
         exec \(command)
         """
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent("AgentIsland", isDirectory: true)

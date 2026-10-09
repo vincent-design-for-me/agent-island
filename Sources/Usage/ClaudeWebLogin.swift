@@ -239,7 +239,7 @@ final class ClaudeWebLogin: @unchecked Sendable {
     private func send(_ conn: NWConnection, ok: Bool) {
         let emoji = ok ? "✅" : "⚠️"
         let title = ok ? "已连接 Claude" : "登录未完成"
-        let note = ok ? "认证成功，可以关闭此页并返回 Agent Island。" : "请回到 Agent Island 重试。"
+        let note = ok ? "认证成功，可以关闭此页并返回 Gauge。" : "请回到 Gauge 重试。"
         let body = """
         <!doctype html><html><head><meta charset="utf-8">\
         <meta name="viewport" content="width=device-width,initial-scale=1"><title>Agent Island</title></head>\

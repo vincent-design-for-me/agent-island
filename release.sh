@@ -18,10 +18,10 @@ if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo "error: VERSION must be X.Y.Z (got '$VERSION')" >&2
   exit 1
 fi
-APP_NAME="AgentIsland"
+APP_NAME="Gauge"
 DIST="dist"
 APP="$DIST/$APP_NAME.app"
-DMG="$DIST/AgentIsland-$VERSION.dmg"
+DMG="$DIST/Gauge-$VERSION.dmg"
 
 DMGBUILD="dmgbuild"
 if ! command -v dmgbuild >/dev/null 2>&1; then
