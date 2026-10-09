@@ -11,6 +11,8 @@ struct ClaudeSignInMenu: View {
             if usage.claudeReauthInProgress {
                 Button(L10n.tr("Cancel sign-in")) { usage.cancelClaudeSignIn() }
             } else {
+                Button(L10n.tr("Re-authenticate")) { usage.reauthenticateClaude() }
+                Divider()
                 Section(L10n.tr("Choose where the sign-in opens")) {
                     choice(.systemDefault, title: defaultTitle)
                     ForEach(ClaudeSignInBrowser.profiles()) { profile in

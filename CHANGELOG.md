@@ -6,6 +6,12 @@ tag was cut.
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-10-09
+
+### Fixed
+- macOS: Settings no longer shows "Re-authenticate" next to Claude and Codex while both are signed in and syncing. The button now appears only when a fetch actually fails; re-login stays one click away at the top of the Claude arrow menu and the Codex account menu.
+- macOS: a just-finished sync read "synced in 0 seconds" (a future tense) instead of "0 seconds ago".
+
 ## [2.2.0] - 2026-10-09
 
 First release of the self-maintained fork. The upstream repository and its 2.1.x builds are gone, so the 2.x features were rebuilt on the 1.7.1 source (reference: the MIT Windows port newton5555/AgentIsland-Csharp). Auto-update stays off in this fork; install by building locally.

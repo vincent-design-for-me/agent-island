@@ -626,11 +626,15 @@ struct SettingsView: View {
             ) {
                 HStack(spacing: 8) {
                     if ClaudeCredentials.canPromptReauth() {
-                        PillButton(
-                            label: claudeReauthLabel,
-                            isLoading: usage.claudeReauthInProgress
-                        ) {
-                            usage.reauthenticateClaude()
+                        // Only a broken login earns the prominent button; a
+                        // healthy one keeps re-login inside the arrow menu.
+                        if usage.claudeReauthInProgress || Self.needsReauth(usage.claude) {
+                            PillButton(
+                                label: claudeReauthLabel,
+                                isLoading: usage.claudeReauthInProgress
+                            ) {
+                                usage.reauthenticateClaude()
+                            }
                         }
                         ClaudeSignInMenu(usage: usage)
                     }
@@ -648,7 +652,8 @@ struct SettingsView: View {
                 chip: usage.codex.plan?.uppercased()
             ) {
                 HStack(spacing: 8) {
-                    if CodexCredentials.canPromptReauth() {
+                    if CodexCredentials.canPromptReauth(),
+                       usage.codexReauthInProgress || Self.needsReauth(usage.codex) {
                         PillButton(
                             label: usage.codexReauthInProgress ? "waiting for login…" : "Re-authenticate",
                             isLoading: usage.codexReauthInProgress
@@ -783,7 +788,7 @@ struct SettingsView: View {
                 ? L10n.tr("scanning local logs… · pricing data %dd old", days)
                 : L10n.tr("scanning local logs…")
         } else if let updated = cost.lastUpdated {
-            let relative = Self.relativeFormatter.localizedString(for: updated, relativeTo: Date())
+            let relative = Self.relativeFormatter.localizedString(for: min(updated, Date()), relativeTo: Date())
             return isStale
                 ? L10n.tr("last scan %@ · pricing data %dd old", relative, days)
                 : L10n.tr("last scan %@", relative)
@@ -1001,7 +1006,7 @@ struct SettingsView: View {
     private func providerSubtitle(_ u: AppUsage) -> String {
         let synced: String = {
             guard let updated = usage.lastUpdated else { return L10n.tr("idle") }
-            return L10n.tr("synced %@", Self.relativeFormatter.localizedString(for: updated, relativeTo: Date()))
+            return L10n.tr("synced %@", Self.relativeFormatter.localizedString(for: min(updated, Date()), relativeTo: Date()))
         }()
         // Codex's weekly-only world: one window, one number — the second
         // slot would just read "⚠ no data" forever.
@@ -1014,10 +1019,16 @@ struct SettingsView: View {
     private func extraSubtitle(_ provider: ExtraProvider, _ u: AppUsage) -> String {
         guard extras.enabled.contains(provider) else { return L10n.tr("off") }
         let synced = extras.lastUpdated[provider].map {
-            L10n.tr("synced %@", Self.relativeFormatter.localizedString(for: $0, relativeTo: Date()))
+            L10n.tr("synced %@", Self.relativeFormatter.localizedString(for: min($0, Date()), relativeTo: Date()))
         } ?? L10n.tr("idle")
         let detail = u.detail.map { " · \($0)" } ?? ""
         return "\(synced) · \(Self.windowCaption(u.fiveHour))\(detail)"
+    }
+
+    /// A real fetch error on either window. "no data" is the single-window
+    /// sentinel (Codex is weekly-only), not a failure.
+    private static func needsReauth(_ u: AppUsage) -> Bool {
+        [u.fiveHour, u.weekly].contains { $0.error != nil && $0.error != "no data" }
     }
 
     private static func windowCaption(_ w: WindowUsage) -> String {

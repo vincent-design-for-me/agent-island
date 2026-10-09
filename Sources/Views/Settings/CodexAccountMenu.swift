@@ -36,6 +36,13 @@ struct CodexAccountMenu: View {
             }
             Divider()
             Toggle(L10n.tr("Auto-switch when exhausted"), isOn: $usage.codexAutoSwitch)
+            if CodexCredentials.canPromptReauth() {
+                Divider()
+                Button(L10n.tr(usage.codexReauthInProgress ? "waiting for login…" : "Re-authenticate")) {
+                    usage.reauthenticateCodex()
+                }
+                .disabled(usage.codexReauthInProgress)
+            }
         } label: {
             Image(systemName: "person.crop.circle")
                 .font(.system(size: 13, weight: .medium))
