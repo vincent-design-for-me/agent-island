@@ -29,11 +29,11 @@ struct SettingsView: View {
     @ObservedObject private var cost = CostStore.shared
     @ObservedObject private var updater = UpdaterController.shared
 
-    @AppStorage("Settings.activeTab") private var activeTabRaw: String = SettingsTab.general.rawValue
+    @AppStorage("Settings.activeTab") private var activeTabRaw: String = SettingsTab.providers.rawValue
 
     private var activeTab: SettingsTab {
         get {
-            let tab = SettingsTab(rawValue: activeTabRaw) ?? .general
+            let tab = SettingsTab(rawValue: activeTabRaw) ?? .providers
             // A window last parked on the retired Triggers tab lands on
             // General instead of an orphaned tab with no button.
             return tab == .triggers ? .general : tab
@@ -46,42 +46,51 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Traffic-light gutter — empty by design. Window has transparent
-            // title bar so traffic lights float over the dark fill.
-            Color.clear.frame(height: 28)
+        HStack(spacing: 0) {
+            sidebar
 
-            BrandHeader(version: version)
+            Rectangle()
+                .fill(.white.opacity(0.055))
+                .frame(width: 1)
 
-            tabBar
+            VStack(alignment: .leading, spacing: 0) {
+                // Traffic-light row height, so the page title lines up with
+                // the window chrome instead of sliding under it.
+                Color.clear.frame(height: 28)
 
-            hairline
+                Text(L10n.tr(activeTab.title))
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.94))
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 10)
 
-            // ScrollView guarantees the footer stays at the bottom of the
-            // window regardless of how much content the active tab has —
-            // overflow scrolls instead of pushing chrome off-screen.
-            ScrollView(.vertical, showsIndicators: false) {
-                Group {
-                    switch activeTab {
-                    case .general:     generalTab
-                    case .display:     displayTab
-                    case .providers:   providersTab
-                    case .triggers:    TriggerSettingsView()
-                    case .statusGuide: StatusGuideView()
+                // ScrollView guarantees the footer stays at the bottom of the
+                // window regardless of how much content the active page has —
+                // overflow scrolls instead of pushing chrome off-screen.
+                ScrollView(.vertical, showsIndicators: false) {
+                    Group {
+                        switch activeTab {
+                        case .providers:   providersTab
+                        case .display:     displayTab
+                        case .alerts:      alertsTab
+                        case .general:     generalTab
+                        case .triggers:    TriggerSettingsView()
+                        case .statusGuide: StatusGuideView()
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .top)
                 }
-                .frame(maxWidth: .infinity, alignment: .top)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Recording rig: below-the-fold rows need live-window screenshots
+                // too (ImageRenderer is banned for chrome checks).
+                .modifier(RigScrollAnchor())
+
+                hairline
+
+                SettingsFooter()
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            // Recording rig: below-the-fold rows need live-window screenshots
-            // too (ImageRenderer is banned for chrome checks).
-            .modifier(RigScrollAnchor())
-
-            hairline
-
-            SettingsFooter()
         }
-        .frame(minWidth: 440, minHeight: 420)
+        .frame(minWidth: 640, minHeight: 460)
         .background(Color(red: 0.020, green: 0.020, blue: 0.027))
         .preferredColorScheme(.dark)
         .id(appLanguage.language)
@@ -105,53 +114,82 @@ struct SettingsView: View {
     }
 
     enum SettingsTab: String, CaseIterable {
-        case general, display, providers, triggers, statusGuide
+        case providers, display, alerts, general, triggers, statusGuide
 
         var label: String {
             switch self {
-            case .general:     "General"
-            case .display:     "Display"
             case .providers:   "Providers"
+            case .display:     "Display"
+            case .alerts:      "Alerts"
+            case .general:     "General"
             case .triggers:    "Triggers"
-            case .statusGuide: "Status"
+            case .statusGuide: "Status guide"
+            }
+        }
+
+        var title: String { label }
+
+        var symbol: String {
+            switch self {
+            case .providers:   "square.grid.2x2"
+            case .display:     "display"
+            case .alerts:      "bell"
+            case .general:     "gearshape"
+            case .triggers:    "bolt"
+            case .statusGuide: "eye"
             }
         }
     }
 
-    private var tabBar: some View {
-        HStack(spacing: 4) {
-            // Auto-resume is retired (2026-07-13); the Triggers tab is gated
+    private var sidebar: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Color.clear.frame(height: 30)
+
+            SidebarBrand(version: version)
+                .padding(.horizontal, 12)
+                .padding(.bottom, 16)
+
+            // Auto-resume is retired (2026-07-13); the Triggers page is gated
             // out rather than deleted so restoring it is this one filter.
             ForEach(SettingsTab.allCases.filter { $0 != .triggers }, id: \.self) { tab in
-                tabButton(tab)
+                sidebarButton(tab)
             }
+
+            Spacer()
         }
-        .padding(.horizontal, 18)
-        .padding(.top, 4)
-        .padding(.bottom, 10)
+        .padding(.horizontal, 10)
+        .frame(width: 176)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background(Color.white.opacity(0.018))
     }
 
     @ViewBuilder
-    private func tabButton(_ tab: SettingsTab) -> some View {
+    private func sidebarButton(_ tab: SettingsTab) -> some View {
         let isOn = (activeTab == tab)
         Button {
             activeTab = tab
         } label: {
-            Text(L10n.tr(tab.label))
-                .font(Typography.tabLabel)
-                .foregroundStyle(isOn
-                    ? .white.opacity(0.95)
-                    : .white.opacity(0.50))
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(isOn ? .white.opacity(0.08) : .clear)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 6)
-                                .strokeBorder(.white.opacity(isOn ? 0.08 : 0), lineWidth: 0.5)
-                        }
-                }
+            HStack(spacing: 9) {
+                Image(systemName: tab.symbol)
+                    .font(.system(size: 12, weight: .medium))
+                    .frame(width: 16)
+                    .foregroundStyle(isOn ? IslandColor.liveTeal : .white.opacity(0.5))
+                Text(L10n.tr(tab.label))
+                    .font(Typography.tabLabel)
+                    .foregroundStyle(isOn ? .white.opacity(0.95) : .white.opacity(0.62))
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 10)
+            .frame(height: 30)
+            .background {
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(isOn ? Color(red: 0.95, green: 0.72, blue: 0.30).opacity(0.10) : .clear)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 7)
+                            .strokeBorder(Color(red: 0.95, green: 0.72, blue: 0.30).opacity(isOn ? 0.28 : 0), lineWidth: 0.5)
+                    }
+            }
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .animation(.easeOut(duration: 0.12), value: isOn)
@@ -164,8 +202,13 @@ struct SettingsView: View {
     private var generalTab: some View {
         VStack(alignment: .leading, spacing: 0) {
             generalSection
-            alertsSection
             updatesSection
+        }
+    }
+
+    private var alertsTab: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            alertsSection
         }
     }
 
@@ -575,7 +618,6 @@ struct SettingsView: View {
 
     private var providersSection: some View {
         VStack(alignment: .leading, spacing: 0) {
-            sectionLabel("Providers")
             SettingsRow(
                 title: "Claude",
                 subtitle: providerSubtitle(usage.claude),
@@ -642,6 +684,7 @@ struct SettingsView: View {
                 }
             }
             NotchSlotPicker()
+                .padding(.horizontal, 10)
         }
         .padding(.horizontal, 14)
         .padding(.top, 18)

@@ -419,3 +419,6 @@
 "Pick at most two" = "最多选两个";
 "Left" = "左";
 "Right" = "右";
+
+/* Settings sidebar */
+"Status guide" = "状态指南";

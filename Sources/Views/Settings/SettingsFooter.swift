@@ -7,7 +7,7 @@ import AppKit
 struct SettingsFooter: View {
     @State private var quitHovered = false
 
-    private static let githubURL = URL(string: "https://github.com/tristan666666/agent-island")!
+    private static let githubURL = URL(string: "https://github.com/vincent-design-for-me/agent-island")!
 
     var body: some View {
         // GitHub + Quit on the left, the two share CTAs flush right

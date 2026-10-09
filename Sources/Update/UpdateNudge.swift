@@ -15,7 +15,7 @@ final class UpdateNudge {
 
     private static let snoozeVersionKey = "AgentIsland.updateNudgeVersion"
     private static let snoozeUntilKey = "AgentIsland.updateNudgeUntil"
-    private static let latestAPI = URL(string: "https://api.github.com/repos/tristan666666/agent-island/releases/latest")!
+    private static let latestAPI = URL(string: "https://api.github.com/repos/vincent-design-for-me/agent-island/releases/latest")!
 
     private var timer: Timer?
     private var alertShowing = false
@@ -79,7 +79,7 @@ final class UpdateNudge {
         else { return nil }
         let version = tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
         let page = (json["html_url"] as? String).flatMap(URL.init(string:))
-            ?? URL(string: "https://github.com/tristan666666/agent-island/releases/latest")!
+            ?? URL(string: "https://github.com/vincent-design-for-me/agent-island/releases/latest")!
         return Release(version: version, pageURL: page)
     }
 

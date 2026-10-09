@@ -67,3 +67,34 @@ struct BrandHeader: View {
         }
     }
 }
+
+/// Compact brand block for the settings sidebar: mark, name, version.
+struct SidebarBrand: View {
+    let version: String
+
+    private var logo: NSImage? {
+        Bundle.main.url(forResource: "agentisland_logo", withExtension: "png")
+            .flatMap { NSImage(contentsOf: $0) }
+    }
+
+    var body: some View {
+        HStack(spacing: 9) {
+            if let logo {
+                Image(nsImage: logo)
+                    .renderingMode(.original)
+                    .resizable()
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 22, height: 22)
+            }
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Agent Island")
+                    .font(Typography.brand)
+                    .foregroundStyle(.white.opacity(0.92))
+                Text("v\(version)")
+                    .font(Typography.caption)
+                    .foregroundStyle(.white.opacity(0.38))
+            }
+        }
+    }
+}

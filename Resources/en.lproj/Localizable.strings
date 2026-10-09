@@ -411,3 +411,6 @@
 "Pick at most two" = "Pick at most two";
 "Left" = "Left";
 "Right" = "Right";
+
+/* Settings sidebar */
+"Status guide" = "Status guide";
