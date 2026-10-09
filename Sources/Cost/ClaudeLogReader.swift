@@ -39,7 +39,9 @@ enum ClaudeLogReader {
                     inputTokens: ev.inputTokens,
                     outputTokens: ev.outputTokens,
                     cacheCreationTokens: ev.cacheCreationTokens,
-                    cacheReadTokens: ev.cacheReadTokens
+                    cacheReadTokens: ev.cacheReadTokens,
+                    cacheCreation1hTokens: ev.cacheCreation1hTokens,
+                    fast: ev.fast
                 ))
             }
         )
@@ -129,6 +131,8 @@ enum ClaudeLogReader {
         let output = (usage["output_tokens"] as? Int) ?? 0
         let cacheCreate = (usage["cache_creation_input_tokens"] as? Int) ?? 0
         let cacheRead = (usage["cache_read_input_tokens"] as? Int) ?? 0
+        let cacheCreation1h = ((usage["cache_creation"] as? [String: Any])?["ephemeral_1h_input_tokens"] as? Int) ?? 0
+        let fast = (usage["speed"] as? String) == "fast"
 
         // Skip noop entries — ccusage filters these so totals match exactly.
         if input == 0 && output == 0 && cacheCreate == 0 && cacheRead == 0 { return nil }
@@ -140,6 +144,8 @@ enum ClaudeLogReader {
             outputTokens: output,
             cacheCreationTokens: cacheCreate,
             cacheReadTokens: cacheRead,
+            cacheCreation1hTokens: min(cacheCreation1h, cacheCreate),
+            fast: fast,
             dedupKey: dedupKey
         )
     }
@@ -147,7 +153,7 @@ enum ClaudeLogReader {
     // MARK: - Per-file cache
 
     /// Bump on any breaking change to `CachedEvent` to force a clean re-parse.
-    private static let cacheVersion = 1
+    private static let cacheVersion = 2
 
     private struct CachedEvent: Codable {
         let timestamp: Date
@@ -156,6 +162,8 @@ enum ClaudeLogReader {
         let outputTokens: Int
         let cacheCreationTokens: Int
         let cacheReadTokens: Int
+        let cacheCreation1hTokens: Int
+        let fast: Bool
         let dedupKey: String
     }
 }

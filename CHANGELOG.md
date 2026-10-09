@@ -6,6 +6,16 @@ tag was cut.
 
 ## [Unreleased]
 
+## [2.2.3] - 2026-10-09
+
+### Added
+- macOS: Claude Haiku 5.5 pricing, including its prompt-length tiers ($0.10/$0.50 up to 100k prompt tokens, $0.50/$2.50 above). The tier is decided per request on input + cache reads + cache writes, as Anthropic bills it. New Haiku models now fall back to Haiku 5.5.
+
+### Fixed
+- macOS: 1-hour prompt-cache writes were costed like 5-minute ones (1.25x input). They bill at 2x input; Claude Code writes ~90% of its cache to the 1-hour tier, so cache-heavy months were undercounted.
+- macOS: Claude Code fast mode (`/fast`) is now costed at its premium (2x — Opus 5.5 $8/$40, Opus 5 and 4.8 $10/$50); Opus 4.6 fast requests stay at standard price, as billed.
+- macOS: the usage archive (format v2) keeps the 1-hour share, fast mode and the long-prompt tier per day and model, so refilled history prices exactly like the original logs.
+
 ## [2.2.2] - 2026-10-09
 
 ### Added

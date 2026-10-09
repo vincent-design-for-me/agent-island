@@ -83,6 +83,12 @@ enum Pricing {
             inputPerMillion: 3, outputPerMillion: 15,
             cacheCreationPerMillion: 3.75, cacheReadPerMillion: 0.30
         ),
+        // Haiku 5.5 is tiered by prompt length; this is the ≤100k tier, the
+        // >100k tier lives in `haiku55Long`.
+        "claude-haiku-5-5": Rates(
+            inputPerMillion: 0.10, outputPerMillion: 0.50,
+            cacheCreationPerMillion: 0.125, cacheReadPerMillion: 0.01
+        ),
         "claude-haiku-4-5": Rates(
             inputPerMillion: 1, outputPerMillion: 5,
             cacheCreationPerMillion: 1.25, cacheReadPerMillion: 0.10
@@ -216,15 +222,36 @@ enum Pricing {
     /// disagree with Anthropic's per-position-in-context billing anyway.
     static func cost(for event: TokenEvent) -> Double {
         let lookup = canonicalModel(event.model)
-        guard let rates = table[lookup] ?? familyFallback(lookup) else { return 0 }
+        guard var rates = table[lookup] ?? familyFallback(lookup) else { return 0 }
+        // Each request is priced on its own prompt length, cache included.
+        if lookup == "claude-haiku-5-5", event.longPromptOverride ?? (event.promptTokens > haiku55Threshold) {
+            rates = haiku55Long
+        }
 
+        let oneHour = min(event.cacheCreation1hTokens, event.cacheCreationTokens)
+        let fiveMinute = event.cacheCreationTokens - oneHour
         let input = Double(event.inputTokens) / 1_000_000 * rates.inputPerMillion
         let output = Double(event.outputTokens) / 1_000_000 * rates.outputPerMillion
-        let cacheCreate = Double(event.cacheCreationTokens) / 1_000_000 * rates.cacheCreationPerMillion
+        let cacheCreate = Double(fiveMinute) / 1_000_000 * rates.cacheCreationPerMillion
+        // 1-hour cache writes bill at 2x base input on every Claude model.
+        let cacheCreate1h = Double(oneHour) / 1_000_000 * rates.inputPerMillion * 2
         let cacheRead = Double(event.cacheReadTokens) / 1_000_000 * rates.cacheReadPerMillion
 
-        return input + output + cacheCreate + cacheRead
+        // Fast mode doubles every rate on the models that support it; caching
+        // multipliers stack on top, which a flat multiplier preserves.
+        let fastMultiplier = event.fast && fastModeModels.contains(lookup) ? 2.0 : 1.0
+        return (input + output + cacheCreate + cacheCreate1h + cacheRead) * fastMultiplier
     }
+
+    static let haiku55Threshold = 100_000
+    private static let haiku55Long = Rates(
+        inputPerMillion: 0.50, outputPerMillion: 2.50,
+        cacheCreationPerMillion: 0.625, cacheReadPerMillion: 0.05
+    )
+
+    /// Fast mode: Opus 5.5 $8/$40, Opus 5 and 4.8 $10/$50 — 2x standard.
+    /// Opus 4.6 runs fast requests at standard speed and standard price.
+    private static let fastModeModels: Set<String> = ["claude-opus-5-5", "claude-opus-5", "claude-opus-4-8"]
 
     /// A model newer than this snapshot is priced like the newest known
     /// member of its family, so it never reads $0 and silently drops off the
@@ -236,7 +263,7 @@ enum Pricing {
             ("claude-sonnet", "", "claude-sonnet-5-5"),
             ("sonnet", "", "claude-sonnet-5-5"),
             ("opus", "", "claude-opus-5-5"),
-            ("claude-haiku", "", "claude-haiku-4-5"),
+            ("claude-haiku", "", "claude-haiku-5-5"),
             ("claude-fable", "", "claude-fable-5-1"),
             ("claude-mythos", "", "claude-fable-5-1"),
             ("gpt-", "-sol", "gpt-6.1-sol"),

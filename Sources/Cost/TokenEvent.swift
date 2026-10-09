@@ -20,4 +20,16 @@ struct TokenEvent {
     /// (Codex calls these "cached_input_tokens" — they are billed at a
     /// discount but still draw from the input bucket).
     let cacheReadTokens: Int
+    /// The part of `cacheCreationTokens` written to the 1-hour cache, billed
+    /// at 2x input instead of the 5-minute cache's 1.25x. Anthropic-only.
+    var cacheCreation1hTokens: Int = 0
+    /// Claude Code fast mode (`/fast`), billed at a premium on supported Opus models.
+    var fast: Bool = false
+    /// Pins the long-prompt pricing tier for archive-replayed events, whose
+    /// summed tokens no longer reflect any single request's prompt length.
+    var longPromptOverride: Bool? = nil
+
+    /// Prompt length as Anthropic counts it for tiered pricing: every input
+    /// token of the request, cache reads and writes included.
+    var promptTokens: Int { inputTokens + cacheCreationTokens + cacheReadTokens }
 }
