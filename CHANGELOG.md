@@ -6,6 +6,11 @@ tag was cut.
 
 ## [Unreleased]
 
+## [2.3.2] - 2026-10-09
+
+### Changed
+- macOS: the brand mark in the settings sidebar is larger (36pt, up from 22pt), matching the height of the name and version beside it.
+
 ## [2.3.1] - 2026-10-09
 
 ### Changed

@@ -78,14 +78,16 @@ struct SidebarBrand: View {
     }
 
     var body: some View {
-        HStack(spacing: 9) {
+        HStack(spacing: 8) {
             if let logo {
                 Image(nsImage: logo)
                     .renderingMode(.original)
                     .resizable()
                     .interpolation(.high)
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 22, height: 22)
+                    // The icon carries its own glow margin, so the visible mark
+                    // is ~80% of this frame.
+                    .frame(width: 36, height: 36)
             }
             VStack(alignment: .leading, spacing: 1) {
                 Text("Gauge")
