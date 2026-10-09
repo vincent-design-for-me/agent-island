@@ -414,3 +414,18 @@
 
 /* Settings sidebar */
 "Status guide" = "Status guide";
+
+/* What's new */
+"What's new" = "What's new";
+"Back" = "Back";
+"Next" = "Next";
+"Got it" = "Got it";
+"What's new in this version" = "What's new in this version";
+"Claude sign-in works again, new models are priced, and three new providers join the island." = "Claude sign-in works again, new models are priced, and new providers join the island.";
+"Sign-in that lands right" = "Sign-in that lands right";
+"Pick the browser or Chrome profile the Claude sign-in opens in, use an incognito window, copy the link, or paste a code." = "Pick the browser or Chrome profile the Claude sign-in opens in, use an incognito window, copy the link, or paste a code.";
+"Save each Codex login under a name and switch in one click. Optionally rotate to the next account when one runs out." = "Save each Codex login under a name and switch in one click. Optionally rotate to the next account when one runs out.";
+"Cursor and Grok, any two on the notch" = "Cursor and Grok, any two on the notch";
+"Cursor's billing period and Grok's weekly pool show under Claude and Codex. Choose any two providers for the notch." = "Cursor's billing period and Grok's weekly pool show under Claude and Codex. Choose any two providers for the notch.";
+"Reports for any date" = "Reports for any date";
+"Pick a start date for the weekly card or step back through months. Opus 5, Opus 5.5 and Fable 5.1 are now priced." = "Pick a start date for the weekly card or step back through months. Opus 5, Opus 5.5 and Fable 5.1 are now priced.";

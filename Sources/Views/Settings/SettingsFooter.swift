@@ -14,6 +14,9 @@ struct SettingsFooter: View {
         // (owner's layout, 2026-07-14; License link dropped).
         HStack(alignment: .center, spacing: 14) {
             link("GitHub", url: Self.githubURL)
+            DottedLink(title: L10n.tr("What's new")) {
+                WhatsNewWindowController.shared.show()
+            }
 
             Button {
                 NSApp.terminate(nil)

@@ -422,3 +422,18 @@
 
 /* Settings sidebar */
 "Status guide" = "状态指南";
+
+/* What's new */
+"What's new" = "新功能";
+"Back" = "上一页";
+"Next" = "下一页";
+"Got it" = "知道了";
+"What's new in this version" = "这个版本的新功能";
+"Claude sign-in works again, new models are priced, and three new providers join the island." = "Claude 登录恢复正常，新模型有了价格，还接入了新的服务商。";
+"Sign-in that lands right" = "登录更顺手";
+"Pick the browser or Chrome profile the Claude sign-in opens in, use an incognito window, copy the link, or paste a code." = "可以指定 Claude 登录页用哪个浏览器或 Chrome 账户打开，也能用无痕窗口、复制链接或粘贴验证码登录。";
+"Save each Codex login under a name and switch in one click. Optionally rotate to the next account when one runs out." = "给每个 Codex 账号起名保存，一键切换；还可以在额度用完时自动换到下一个账号。";
+"Cursor and Grok, any two on the notch" = "Cursor 和 Grok，刘海任选两个";
+"Cursor's billing period and Grok's weekly pool show under Claude and Codex. Choose any two providers for the notch." = "Cursor 的计费周期额度和 Grok 的每周额度显示在 Claude、Codex 下方；刘海上可以任选两个服务商。";
+"Reports for any date" = "任意日期的报告";
+"Pick a start date for the weekly card or step back through months. Opus 5, Opus 5.5 and Fable 5.1 are now priced." = "周报可以选开始日期，月报可以往前翻月份。Opus 5、Opus 5.5、Fable 5.1 也有价格了。";

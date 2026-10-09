@@ -63,6 +63,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // of flashing "0%" while the first request lands.
         UsageStore.shared.startAutoRefresh()
         CostStore.shared.startAutoRefresh()
+        if !AppEnvironment.isDemo {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                WhatsNewWindowController.shared.showIfUpdated()
+            }
+        }
 
         // Wire the alert engine after the usage store so its initial
         // recompute sees whatever values the first refresh has produced.
