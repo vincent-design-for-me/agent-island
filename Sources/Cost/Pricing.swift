@@ -10,7 +10,7 @@ import Foundation
 /// Unknown models silently price to $0 — same behavior as ccusage when
 /// LiteLLM has no entry.
 enum Pricing {
-    static let snapshotDate = "2026-09-27"
+    static let snapshotDate = "2026-10-09"
 
     struct Rates {
         let inputPerMillion: Double
@@ -60,11 +60,16 @@ enum Pricing {
             inputPerMillion: 10, outputPerMillion: 50,
             cacheCreationPerMillion: 12.50, cacheReadPerMillion: 1.00
         ),
-        // Sonnet 5 standard list ($2/$10 intro runs through 2026-08-31; we
-        // book at list so estimates don't shift when the intro lapses).
+        // Sonnet 5's $2/$10 launch price became the standard price; the
+        // planned September rise to $3/$15 was cancelled.
         "claude-sonnet-5": Rates(
-            inputPerMillion: 3, outputPerMillion: 15,
-            cacheCreationPerMillion: 3.75, cacheReadPerMillion: 0.30
+            inputPerMillion: 2, outputPerMillion: 10,
+            cacheCreationPerMillion: 2.50, cacheReadPerMillion: 0.20
+        ),
+        // Opus 5.5 / Sonnet 5.5 bill cache hits at 0.05x input.
+        "claude-sonnet-5-5": Rates(
+            inputPerMillion: 2, outputPerMillion: 10,
+            cacheCreationPerMillion: 2.50, cacheReadPerMillion: 0.10
         ),
         "claude-opus-4-1": Rates(
             inputPerMillion: 15, outputPerMillion: 75,
@@ -89,6 +94,24 @@ enum Pricing {
         // Base reasoning models (newest first).
         // GPT-5.6 tiers (launched 2026-07-09; official developers.openai.com
         // pricing, fetched 2026-07-13): sol matches 5.5's rates.
+        // GPT-6 tiers (official developers.openai.com pricing, fetched
+        // 2026-10-09).
+        "gpt-6.1-sol": Rates(
+            inputPerMillion: 2, outputPerMillion: 10,
+            cacheCreationPerMillion: 2, cacheReadPerMillion: 0.10
+        ),
+        "gpt-6-sol": Rates(
+            inputPerMillion: 2, outputPerMillion: 10,
+            cacheCreationPerMillion: 2, cacheReadPerMillion: 0.20
+        ),
+        "gpt-6-luna": Rates(
+            inputPerMillion: 0.10, outputPerMillion: 0.50,
+            cacheCreationPerMillion: 0.10, cacheReadPerMillion: 0.01
+        ),
+        "gpt-6-astra": Rates(
+            inputPerMillion: 10, outputPerMillion: 50,
+            cacheCreationPerMillion: 10, cacheReadPerMillion: 1
+        ),
         "gpt-5.6-sol": Rates(
             inputPerMillion: 5, outputPerMillion: 30,
             cacheCreationPerMillion: 5, cacheReadPerMillion: 0.50
@@ -193,7 +216,7 @@ enum Pricing {
     /// disagree with Anthropic's per-position-in-context billing anyway.
     static func cost(for event: TokenEvent) -> Double {
         let lookup = canonicalModel(event.model)
-        guard let rates = table[lookup] else { return 0 }
+        guard let rates = table[lookup] ?? familyFallback(lookup) else { return 0 }
 
         let input = Double(event.inputTokens) / 1_000_000 * rates.inputPerMillion
         let output = Double(event.outputTokens) / 1_000_000 * rates.outputPerMillion
@@ -201,6 +224,31 @@ enum Pricing {
         let cacheRead = Double(event.cacheReadTokens) / 1_000_000 * rates.cacheReadPerMillion
 
         return input + output + cacheCreate + cacheRead
+    }
+
+    /// A model newer than this snapshot is priced like the newest known
+    /// member of its family, so it never reads $0 and silently drops off the
+    /// report cards (Opus 5.5 and Sonnet 5.5 both did). `isKnown` still says
+    /// false, so the unpriced warning keeps asking for a real entry.
+    private static func familyFallback(_ model: String) -> Rates? {
+        let families: [(prefix: String, suffix: String, model: String)] = [
+            ("claude-opus", "", "claude-opus-5-5"),
+            ("claude-sonnet", "", "claude-sonnet-5-5"),
+            ("sonnet", "", "claude-sonnet-5-5"),
+            ("opus", "", "claude-opus-5-5"),
+            ("claude-haiku", "", "claude-haiku-4-5"),
+            ("claude-fable", "", "claude-fable-5-1"),
+            ("claude-mythos", "", "claude-fable-5-1"),
+            ("gpt-", "-sol", "gpt-6.1-sol"),
+            ("gpt-", "-luna", "gpt-6-luna"),
+            ("gpt-", "-astra", "gpt-6-astra"),
+            ("gpt-", "-terra", "gpt-5.6-terra"),
+            ("codex", "", "gpt-5.3-codex"),
+        ]
+        for family in families where model.hasPrefix(family.prefix) && model.hasSuffix(family.suffix) {
+            return table[family.model]
+        }
+        return nil
     }
 
     /// Whether the embedded snapshot has a price entry for this model.

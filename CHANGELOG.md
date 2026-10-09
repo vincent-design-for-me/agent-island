@@ -6,6 +6,15 @@ tag was cut.
 
 ## [Unreleased]
 
+## [2.2.2] - 2026-10-09
+
+### Added
+- macOS: the app keeps its own append-only usage archive (`~/Library/Application Support/AgentIsland/ledger-{claude,codex}.json`, per day and model, token counts only). Claude Code deletes session logs untouched for 30 days by default, which made old months shrink on the report cards; days and models the logs no longer cover are now refilled from the archive, so month, week, heatmap and any-date reports keep the full history. Nothing in Claude Code's own configuration is changed.
+
+### Fixed
+- macOS: the October monthly card showed only Opus 5.5 — Sonnet 5.5 and every Codex model (gpt-6-sol, gpt-6.1-sol, gpt-6-luna, codex-auto-review) were unpriced, read $0, and were dropped. Added official prices (fetched 2026-10-09), and a model newer than the price table is now estimated at its family's newest rate instead of vanishing (it is still flagged as unpriced).
+- macOS: Sonnet 5 was costed at $3/$15; its $2/$10 launch price became the standard price, so earlier Sonnet 5 estimates were 50% too high.
+
 ## [2.2.1] - 2026-10-09
 
 ### Fixed

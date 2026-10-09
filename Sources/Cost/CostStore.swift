@@ -66,7 +66,9 @@ final class CostStore: ObservableObject {
             claudeLoading = true
             claudeScanStartedAt = Date()
             Task.detached(priority: .userInitiated) { [weak self] in
-                let events = ClaudeLogReader.scan(lookbackDays: CostSummary.yearHistoryDays())
+                let scanned = ClaudeLogReader.scan(lookbackDays: CostSummary.yearHistoryDays())
+                // The app's own archive refills days whose logs were deleted.
+                let events = UsageLedger.reconcile(scanned, provider: .claude)
                 let cost = CostSummary.summarize(events: events)
                 await self?.commitClaude(cost)
             }
@@ -75,7 +77,9 @@ final class CostStore: ObservableObject {
             codexLoading = true
             codexScanStartedAt = Date()
             Task.detached(priority: .userInitiated) { [weak self] in
-                let events = CodexLogReader.scan(lookbackDays: CostSummary.yearHistoryDays())
+                let scanned = CodexLogReader.scan(lookbackDays: CostSummary.yearHistoryDays())
+                // The app's own archive refills days whose logs were deleted.
+                let events = UsageLedger.reconcile(scanned, provider: .codex)
                 let cost = CostSummary.summarize(events: events)
                 await self?.commitCodex(cost)
             }
